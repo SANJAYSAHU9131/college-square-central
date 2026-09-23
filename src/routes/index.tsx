@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,

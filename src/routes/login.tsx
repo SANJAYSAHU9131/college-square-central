@@ -109,7 +109,7 @@ function LoginPage() {
               </div>
             </div>
             {error && <p role="alert" className="rounded-md bg-destructive-soft px-3 py-2 text-sm font-medium text-destructive">{error}</p>}
-            <Button type="submit" size="lg" className="w-full">
+            <Button type="submit" className="h-11 w-full">
               Sign in as {role === "owner" ? "Mess Owner" : "User"} <ArrowRight size={17} />
             </Button>
           </form>
