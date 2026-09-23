@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
@@ -64,7 +64,7 @@ function StudentHub() {
       <header className="sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b bg-card/95 px-4 backdrop-blur sm:px-6 lg:h-[72px] lg:px-8">
         <Button variant="outline" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20} /></Button>
         <div className="relative min-w-0 max-w-md"><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Search messes, rooms, stores..." aria-label="Search StudentHub" /></div>
-        <div className="flex shrink-0 items-center gap-3"><button className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications"><Bell size={18} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" /></button><div className="hidden text-right sm:block"><p className="text-sm font-semibold">Student User</p><p className="text-xs text-muted-foreground">Student</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">SU</div></div>
+        <div className="flex shrink-0 items-center gap-3"><button className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications"><Bell size={18} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" /></button><Link to="/login" className="hidden h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:inline-flex">Login</Link><div className="hidden text-right sm:block"><p className="text-sm font-semibold">Student User</p><p className="text-xs text-muted-foreground">Student</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">SU</div></div>
       </header>
       <main className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8">
         <div key={page} className="page-enter">{renderPage(page, navigate, notify, query)}</div>
