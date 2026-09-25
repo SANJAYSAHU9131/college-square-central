@@ -56,7 +56,7 @@ function LoginPage() {
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [error, setError] = useState("");
 
-  const done = () => navigate({ to: "/" });
+  const done = () => { localStorage.setItem("studenthub-role", role); navigate({ to: "/" }); };
   const roleLabel = role === "owner" ? "Mess Owner" : "User";
 
   const googleSignIn = () => done();
