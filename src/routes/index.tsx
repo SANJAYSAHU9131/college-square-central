@@ -5,7 +5,7 @@ import {
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -30,11 +30,18 @@ const navItems = [
   { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "admin", label: "Admin", icon: Settings },
 ] as const;
 
+type Role = "user" | "owner";
+
 function StudentHub() {
   const [page, setPage] = useState<PageId>("dashboard");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [query, setQuery] = useState("");
+  const [role, setRole] = useState<Role>("user");
+  useEffect(() => {
+    if (localStorage.getItem("studenthub-role") === "owner") setRole("owner");
+  }, []);
+  const visibleNav = navItems.filter(n => role === "owner" || (n.id !== "prediction" && n.id !== "admin"));
   const notify = (message: string) => { setToast(message); window.setTimeout(() => setToast(""), 2500); };
   const navigate = (id: PageId) => { setPage(id); setMobileOpen(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
 
@@ -49,7 +56,7 @@ function StudentHub() {
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={20} /></Button>
       </div>
       <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-widest text-sidebar-muted">Workspace</p>
-      <nav className="space-y-1" aria-label="Main navigation">{navItems.map(({ id, label, icon: Icon }) =>
+      <nav className="space-y-1" aria-label="Main navigation">{visibleNav.map(({ id, label, icon: Icon }) =>
         <button key={id} onClick={() => navigate(id)} className={cn("flex h-11 w-full items-center gap-3 rounded-md px-3 text-sm font-medium transition-colors", page === id ? "bg-primary text-primary-foreground" : "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground")}>
           <Icon size={18} className="shrink-0" /><span>{label}</span>{page === id && <ChevronRight size={15} className="ml-auto" />}
         </button>)}
@@ -64,10 +71,10 @@ function StudentHub() {
       <header className="sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b bg-card/95 px-4 backdrop-blur sm:px-6 lg:h-[72px] lg:px-8">
         <Button variant="outline" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20} /></Button>
         <div className="relative min-w-0 max-w-md"><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Search messes, rooms, stores..." aria-label="Search StudentHub" /></div>
-        <div className="flex shrink-0 items-center gap-3"><button className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications"><Bell size={18} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" /></button><Link to="/login" className="hidden h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:inline-flex">Login</Link><div className="hidden text-right sm:block"><p className="text-sm font-semibold">Student User</p><p className="text-xs text-muted-foreground">Student</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">SU</div></div>
+        <div className="flex shrink-0 items-center gap-3"><button className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications"><Bell size={18} /><span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-destructive ring-2 ring-card" /></button><Link to="/login" className="hidden h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:inline-flex">Login</Link><div className="hidden text-right sm:block"><p className="text-sm font-semibold">{role === "owner" ? "Mess Owner" : "Student User"}</p><p className="text-xs text-muted-foreground">{role === "owner" ? "Owner" : "Student"}</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{role === "owner" ? "MO" : "SU"}</div></div>
       </header>
       <main className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8">
-        <div key={page} className="page-enter">{renderPage(page, navigate, notify, query)}</div>
+        <div key={page} className="page-enter">{renderPage(role === "user" && (page === "prediction" || page === "admin") ? "dashboard" : page, navigate, notify, query)}</div>
       </main>
     </div>
     {toast && <div role="status" className="fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2.5rem)] items-center gap-3 rounded-md bg-foreground px-4 py-3 text-sm font-medium text-background shadow-xl"><CheckCircle2 size={18} className="text-secondary" />{toast}</div>}
