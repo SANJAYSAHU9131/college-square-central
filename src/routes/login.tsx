@@ -175,81 +175,52 @@ function LoginPage() {
             </div>
           )}
 
-          {method === "phone" && !otpSent && (
+          {method !== "google" && !otpSent && (
             <form onSubmit={sendOtp} className="mt-6 space-y-4">
-              <div>
-                <label htmlFor="phone" className="mb-1.5 block text-sm font-semibold">Phone number</label>
-                <div className="relative">
-                  <Smartphone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input id="phone" type="tel" inputMode="numeric" value={phone}
-                    onChange={e => { setPhone(e.target.value); setError(""); }}
-                    placeholder="98765 43210"
-                    className={inputClass} />
-                  <span className="absolute left-9 top-1/2 hidden -translate-y-1/2 text-sm text-muted-foreground sm:block">+91</span>
+              {method === "phone" ? (
+                <div>
+                  <label htmlFor="phone" className="mb-1.5 block text-sm font-semibold">Mobile number</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">+91</span>
+                    <input id="phone" type="tel" inputMode="numeric" maxLength={10} value={phone}
+                      onChange={e => { setPhone(e.target.value.replace(/\D/g, "")); setError(""); }}
+                      placeholder="9876543210" className={inputClass + " pl-12"} />
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <label htmlFor="email" className="mb-1.5 block text-sm font-semibold">Email</label>
+                  <div className="relative">
+                    <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                    <input id="email" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                      placeholder={role === "owner" ? "owner@mess.com" : "student@gmail.com"} className={inputClass} />
+                  </div>
+                </div>
+              )}
               {error && <p role="alert" className="rounded-md bg-destructive-soft px-3 py-2 text-sm font-medium text-destructive">{error}</p>}
-              <Button type="submit" className="h-11 w-full">
-                Send code <MessageSquare size={16} />
-              </Button>
-              <p className="text-center text-xs text-muted-foreground">We'll text a 6-digit code to verify it's you.</p>
+              <Button type="submit" className="h-11 w-full">Send code <MessageSquare size={16} /></Button>
+              <p className="text-center text-xs text-muted-foreground">We'll send a 6-digit code to verify it's you.</p>
             </form>
           )}
 
-          {method === "phone" && otpSent && (
+          {method !== "google" && otpSent && (
             <form onSubmit={verifyOtp} className="mt-6 space-y-4">
-              <p className="text-sm text-muted-foreground">Code sent to <span className="font-semibold text-foreground">+91 {phone}</span>. <button type="button" onClick={() => { setOtpSent(false); setOtp(["", "", "", "", "", ""]); }} className="font-semibold text-primary hover:underline">Change number</button></p>
+              <p className="text-sm text-muted-foreground">Code sent to <span className="font-semibold text-foreground">{method === "phone" ? `+91 ${phone}` : email}</span>. <button type="button" onClick={resetOtp} className="font-semibold text-primary hover:underline">Change</button></p>
+              <p className="rounded-md bg-info-soft px-3 py-2 text-sm">Demo code: <strong className="font-display tracking-widest text-primary">{code}</strong></p>
               <div>
                 <label htmlFor="otp-0" className="mb-1.5 block text-sm font-semibold">Verification code</label>
                 <div className="flex gap-2">
                   {otp.map((digit, i) => (
-                    <input
-                      key={i}
-                      ref={el => { otpRefs.current[i] = el; }}
-                      id={`otp-${i}`}
-                      type="text"
-                      inputMode="numeric"
-                      autoComplete="one-time-code"
-                      value={digit}
-                      onChange={e => setOtpDigit(i, e.target.value)}
-                      onKeyDown={e => onOtpKeyDown(i, e)}
-                      aria-label={`Digit ${i + 1}`}
-                      className="h-12 w-full rounded-md border bg-card text-center font-display text-lg font-bold outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15"
-                    />
+                    <input key={i} ref={el => { otpRefs.current[i] = el; }} id={`otp-${i}`} type="text" inputMode="numeric"
+                      autoComplete="one-time-code" value={digit} onChange={e => setOtpDigit(i, e.target.value)}
+                      onKeyDown={e => onOtpKeyDown(i, e)} aria-label={`Digit ${i + 1}`}
+                      className="h-12 w-full rounded-md border bg-card text-center font-display text-lg font-bold outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" />
                   ))}
                 </div>
               </div>
               {error && <p role="alert" className="rounded-md bg-destructive-soft px-3 py-2 text-sm font-medium text-destructive">{error}</p>}
-              <Button type="submit" className="h-11 w-full">
-                Verify & sign in as {roleLabel} <ArrowRight size={17} />
-              </Button>
-            </form>
-          )}
-
-          {method === "email" && (
-            <form onSubmit={submitEmail} className="mt-6 space-y-4">
-              <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-semibold">Email</label>
-                <div className="relative">
-                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input id="email" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
-                    placeholder={role === "owner" ? "owner@mess.com" : "student@gmail.com"}
-                    className={inputClass} />
-                </div>
-              </div>
-              <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-semibold">Password</label>
-                <div className="relative">
-                  <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <input id="password" type="password" value={password} onChange={e => { setPassword(e.target.value); setError(""); }}
-                    placeholder="••••••••"
-                    className={inputClass} />
-                </div>
-              </div>
-              {error && <p role="alert" className="rounded-md bg-destructive-soft px-3 py-2 text-sm font-medium text-destructive">{error}</p>}
-              <Button type="submit" className="h-11 w-full">
-                Sign in as {roleLabel} <ArrowRight size={17} />
-              </Button>
+              <Button type="submit" className="h-11 w-full">Verify & sign in as {roleLabel} <ArrowRight size={17} /></Button>
+              <button type="button" onClick={issueCode} className="w-full text-center text-sm font-semibold text-primary hover:underline">Resend code</button>
             </form>
           )}
 
