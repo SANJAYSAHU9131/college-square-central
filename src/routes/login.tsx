@@ -49,9 +49,9 @@ function LoginPage() {
   const [role, setRole] = useState<Role>("user");
   const [method, setMethod] = useState<Method>("google");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [otpSent, setOtpSent] = useState(false);
+  const [code, setCode] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [error, setError] = useState("");
@@ -61,22 +61,20 @@ function LoginPage() {
 
   const googleSignIn = () => done();
 
+  const issueCode = () => { setCode(String(Math.floor(100000 + Math.random() * 900000))); setOtp(["", "", "", "", "", ""]); setOtpSent(true); setError(""); };
+  const resetOtp = () => { setOtpSent(false); setCode(""); setOtp(["", "", "", "", "", ""]); setError(""); };
+
   const sendOtp = (e: React.FormEvent) => {
     e.preventDefault();
-    if (phone.replace(/\D/g, "").length < 10) { setError("Please enter a valid 10-digit phone number."); return; }
-    setError("");
-    setOtpSent(true);
+    if (method === "phone" && !/^[6-9]\d{9}$/.test(phone.replace(/\D/g, ""))) { setError("Please enter a valid 10-digit mobile number."); return; }
+    if (method === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid email address."); return; }
+    issueCode();
   };
 
   const verifyOtp = (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.some(d => !d)) { setError("Please enter the 6-digit code."); return; }
-    done();
-  };
-
-  const submitEmail = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim() || !password.trim()) { setError("Please enter your email and password."); return; }
+    if (otp.join("") !== code) { setError("Incorrect code. Please try again."); return; }
     done();
   };
 
