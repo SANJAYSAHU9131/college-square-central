@@ -3,7 +3,7 @@ import {
   Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
-  WalletCards, X,
+  WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -25,12 +25,13 @@ export const Route = createFileRoute("/")({
   component: StudentHub,
 });
 
-type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin";
+type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile";
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard }, { id: "discover", label: "Discover", icon: Search },
   { id: "menu", label: "Meal Menu", icon: Utensils }, { id: "attendance", label: "Attendance", icon: CheckCircle2 },
   { id: "payments", label: "Payments", icon: CreditCard }, { id: "prediction", label: "Prediction", icon: Gauge },
-  { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "admin", label: "Admin", icon: Settings },
+  { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "profile", label: "My Profile", icon: UserRound },
+  { id: "admin", label: "Admin", icon: Settings },
 ] as const;
 
 type Role = "user" | "owner";
@@ -110,6 +111,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "prediction": return <Prediction notify={notify} />;
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
+    case "profile": return <Profile notify={notify} />;
     default: return <Dashboard navigate={navigate} />;
   }
 }
@@ -129,8 +131,19 @@ function TableWrap({ children }: { children: React.ReactNode }) { return <div cl
 const th = "border-b bg-muted/60 px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground";
 const td = "border-b px-4 py-4 last:border-b-0";
 
+function useToday() {
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    const fmt = () => new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    setToday(fmt());
+    const id = setInterval(() => setToday(fmt()), 60000);
+    return () => clearInterval(id);
+  }, []);
+  return today;
+}
 function Dashboard({ navigate }: { navigate: (id: PageId) => void }) {
-  return <><PageHeader title="Welcome back, Student User" subtitle="Here’s what’s happening with your meals and campus services today." eyebrow="Wednesday, 23 September" />
+  const today = useToday();
+  return <><PageHeader title="Welcome back, Student User" subtitle="Here’s what’s happening with your meals and campus services today." eyebrow={today || "Today"} />
     <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Today's Meals" value="3" icon={Utensils} note="2 opted in" /><Stat label="Attendance" value="87%" icon={CheckCircle2} tone="success" note="26 meals this month" /><Stat label="Pending Bill" value="₹1,850" icon={WalletCards} tone="warning" note="Due 30 September" /><Stat label="Waste Saved" value="18%" icon={Leaf} tone="secondary" note="Compared with baseline" /></div>
     <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]"><Card><SectionTitle action={<Button variant="outline" size="sm" onClick={() => navigate("menu")}>View menu <ChevronRight size={14} /></Button>}>Today’s meals</SectionTitle><div>{[["Breakfast","8:00 AM – 10:00 AM",true],["Lunch","12:30 PM – 2:30 PM",true],["Dinner","7:30 PM – 9:30 PM",false]].map(([name,time,on]) => <div key={String(name)} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b py-4 last:border-0"><div className="min-w-0"><p className="font-semibold">{name}</p><p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><Clock3 size={13} />{time}</p></div><Status type={on ? "success" : "danger"}>{on ? "Opted In" : "Opted Out"}</Status></div>)}</div></Card>
       <Card><SectionTitle>Food demand</SectionTitle><div className="rounded-md bg-info-soft p-5"><p className="text-sm font-medium text-muted-foreground">Today’s expected attendance</p><p className="mt-2 font-display text-3xl font-extrabold">142 <span className="text-base font-semibold text-muted-foreground">students</span></p><div className="my-5"><Progress value={78} /></div><div className="flex justify-between text-xs"><span className="text-muted-foreground">Prediction confidence</span><strong>91%</strong></div></div></Card></div>
@@ -167,3 +180,115 @@ function Feedback({ notify }: { notify:(s:string)=>void }) { const [comments,set
 function Field({label,children}:{label:string;children:React.ReactNode}) { return <label className="block"><span className="mb-2 block text-sm font-semibold">{label}</span>{children}</label>; }
 
 function Admin() { const kpis=[["Food Waste Reduction","24%","Increase","Tracking","success"],["Attendance Prediction Accuracy","91%","Minimize Deviation","Good","success"],["Payment Collection Rate","94%","Increase","Tracking","success"],["Complaint Resolution Time","1.8 Days","Decrease","Monitoring","warning"],["Platform Adoption","78%","Increase","Growing","success"]]; return <><PageHeader title="Administrator Dashboard" subtitle="Platform-wide monitoring, analytics, and service health." eyebrow="Admin workspace"/><div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Active Students" value="2,480" icon={Users}/><Stat label="Active Messes" value="18" icon={Store} tone="secondary"/><Stat label="Food Waste Reduction" value="24%" icon={Leaf} tone="success"/><Stat label="Payment Collection" value="94%" icon={ShieldCheck} tone="primary"/></div><Card className="mb-6 p-0"><div className="p-5"><SectionTitle>Platform KPIs</SectionTitle></div><TableWrap><thead><tr>{["KPI","Current Value","Target Direction","Status"].map(h=><th key={h} className={th}>{h}</th>)}</tr></thead><tbody>{kpis.map(r=><tr key={r[0]}>{r.slice(0,3).map(v=><td className={td} key={v}>{v}</td>)}<td className={td}><Status type={r[4] as "success"|"warning"}>{r[3]}</Status></td></tr>)}</tbody></TableWrap></Card><div className="grid gap-6 xl:grid-cols-2"><Card><SectionTitle>Food waste trend</SectionTitle><div className="mb-4"><Progress value={82} tone="success"/></div><p className="flex items-center gap-2 text-sm text-muted-foreground"><TrendingDown size={16} className="text-success"/><strong className="text-success">18% reduction</strong> compared with baseline</p></Card><Card><SectionTitle>Recent notifications</SectionTitle>{[["Menu updated by Shree Student Mess","New","success"],["New vendor awaiting verification","Review","warning"]].map(([a,b,c])=><div key={a} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b py-3 last:border-0"><p className="min-w-0 text-sm">{a}</p><Status type={c as "success"|"warning"}>{b}</Status></div>)}</Card></div></>; }
+type ProfileData = { name: string; roll: string; email: string; phone: string; college: string; course: string; year: string; hostel: string; room: string; diet: string; allergies: string; guardian: string; guardianPhone: string; photo: string };
+const defaultProfile: ProfileData = { name: "Student User", roll: "BTMC25O1083", email: "student@gmail.com", phone: "9876543210", college: "StudentHub Institute of Technology", course: "B.Tech Computer Science", year: "2nd Year", hostel: "Boys Hostel A", room: "A-214", diet: "Vegetarian", allergies: "None", guardian: "Parent Name", guardianPhone: "9123456780", photo: "" };
+const inputCls = "h-11 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:bg-muted/50 disabled:text-muted-foreground";
+
+function Profile({ notify }: { notify: (s: string) => void }) {
+  const [data, setData] = useState<ProfileData>(defaultProfile);
+  const [draft, setDraft] = useState<ProfileData>(defaultProfile);
+  const [editing, setEditing] = useState(false);
+  const [prefs, setPrefs] = useState({ meal: true, bill: true, menu: false, sms: true });
+  const [pw, setPw] = useState({ cur: "", next: "", confirm: "" });
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("studenthub-profile");
+      if (saved) { const p = { ...defaultProfile, ...JSON.parse(saved) }; setData(p); setDraft(p); }
+      const sp = localStorage.getItem("studenthub-prefs"); if (sp) setPrefs(JSON.parse(sp));
+    } catch { /* ignore */ }
+  }, []);
+  const set = (k: keyof ProfileData) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setDraft(d => ({ ...d, [k]: e.target.value }));
+  const save = () => {
+    if (!draft.name.trim()) return notify("Name cannot be empty");
+    if (!/^\S+@\S+\.\S+$/.test(draft.email)) return notify("Enter a valid email");
+    if (!/^\d{10}$/.test(draft.phone)) return notify("Phone must be 10 digits");
+    setData(draft); localStorage.setItem("studenthub-profile", JSON.stringify(draft)); setEditing(false); notify("Profile saved");
+  };
+  const onPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]; if (!f) return;
+    if (f.size > 1_500_000) return notify("Photo must be under 1.5 MB");
+    const r = new FileReader();
+    r.onload = () => { const next = { ...data, photo: String(r.result) }; setData(next); setDraft(next); localStorage.setItem("studenthub-profile", JSON.stringify(next)); notify("Profile photo updated"); };
+    r.readAsDataURL(f);
+  };
+  const togglePref = (k: keyof typeof prefs) => { const n = { ...prefs, [k]: !prefs[k] }; setPrefs(n); localStorage.setItem("studenthub-prefs", JSON.stringify(n)); notify("Preference updated"); };
+  const changePw = () => {
+    if (!pw.cur) return notify("Enter your current password");
+    if (pw.next.length < 6) return notify("New password must be at least 6 characters");
+    if (pw.next !== pw.confirm) return notify("Passwords do not match");
+    setPw({ cur: "", next: "", confirm: "" }); notify("Password changed");
+  };
+  const initials = data.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const d = editing ? draft : data;
+  const F = (label: string, k: keyof ProfileData, type = "text") => <Field label={label}><input className={inputCls} type={type} value={d[k]} onChange={set(k)} disabled={!editing} /></Field>;
+
+  return <><PageHeader title="My Profile" subtitle="Manage your personal details, mess plan, preferences and security." eyebrow="Student workspace" />
+    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+      <div className="space-y-6">
+        <Card className="text-center">
+          <div className="relative mx-auto h-28 w-28">
+            {data.photo ? <img src={data.photo} alt="Profile" className="h-28 w-28 rounded-full object-cover" /> : <div className="grid h-28 w-28 place-items-center rounded-full bg-primary font-display text-3xl font-extrabold text-primary-foreground">{initials}</div>}
+            <label className="absolute bottom-0 right-0 grid h-9 w-9 cursor-pointer place-items-center rounded-full border bg-card shadow" aria-label="Change photo"><Camera size={16} /><input type="file" accept="image/*" className="hidden" onChange={onPhoto} /></label>
+          </div>
+          <h2 className="mt-4 font-display text-xl font-bold">{data.name}</h2>
+          <p className="text-sm text-muted-foreground">{data.roll}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{data.course} · {data.year}</p>
+          <div className="mt-4 grid grid-cols-3 gap-2 border-t pt-4 text-center">
+            <div><p className="font-display text-lg font-extrabold">87%</p><p className="text-xs text-muted-foreground">Attendance</p></div>
+            <div><p className="font-display text-lg font-extrabold">26</p><p className="text-xs text-muted-foreground">Meals</p></div>
+            <div><p className="font-display text-lg font-extrabold">₹1,850</p><p className="text-xs text-muted-foreground">Due</p></div>
+          </div>
+        </Card>
+        <Card>
+          <SectionTitle>Mess subscription</SectionTitle>
+          <div className="space-y-3 text-sm">
+            {[["Mess", "Shree Student Mess"], ["Plan", "Monthly · 3 meals/day"], ["Fee", "₹2,500 / month"], ["Valid till", "30 Sep 2026"]].map(([a, b]) => <div key={a} className="flex justify-between gap-3"><span className="text-muted-foreground">{a}</span><span className="font-semibold">{b}</span></div>)}
+            <div className="flex justify-between"><span className="text-muted-foreground">Status</span><Status>Active</Status></div>
+          </div>
+          <Button variant="outline" className="mt-5 w-full" onClick={() => notify("Subscription renewed for October")}>Renew plan</Button>
+        </Card>
+        <Card>
+          <SectionTitle>Digital mess ID</SectionTitle>
+          <div className="rounded-md border border-dashed p-4 text-center">
+            <div className="mx-auto grid h-24 w-24 grid-cols-6 gap-0.5">{Array.from({ length: 36 }).map((_, i) => <span key={i} className={cn("rounded-[1px]", (i * 7 + data.roll.length) % 3 ? "bg-foreground" : "bg-transparent")} />)}</div>
+            <p className="mt-3 text-xs text-muted-foreground">Show at the mess counter</p>
+          </div>
+        </Card>
+      </div>
+      <div className="space-y-6">
+        <Card>
+          <SectionTitle action={editing ? <div className="flex gap-2"><Button variant="outline" onClick={() => { setDraft(data); setEditing(false); }}>Cancel</Button><Button onClick={save}><Save size={16} />Save</Button></div> : <Button variant="outline" onClick={() => { setDraft(data); setEditing(true); }}><Pencil size={16} />Edit</Button>}>Personal information</SectionTitle>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {F("Full name", "name")}{F("Roll number", "roll")}{F("Email", "email", "email")}{F("Phone", "phone", "tel")}
+            {F("College", "college")}{F("Course", "course")}
+            <Field label="Year"><select className={inputCls} value={d.year} onChange={set("year")} disabled={!editing}>{["1st Year", "2nd Year", "3rd Year", "4th Year"].map(y => <option key={y}>{y}</option>)}</select></Field>
+            {F("Hostel", "hostel")}{F("Room number", "room")}
+          </div>
+        </Card>
+        <Card>
+          <SectionTitle>Food preferences & emergency contact</SectionTitle>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Diet"><select className={inputCls} value={d.diet} onChange={set("diet")} disabled={!editing}>{["Vegetarian", "Non-vegetarian", "Eggetarian", "Jain", "Vegan"].map(y => <option key={y}>{y}</option>)}</select></Field>
+            {F("Allergies", "allergies")}{F("Guardian name", "guardian")}{F("Guardian phone", "guardianPhone", "tel")}
+          </div>
+          {!editing && <p className="mt-3 text-xs text-muted-foreground">Click Edit above to change these details.</p>}
+        </Card>
+        <Card>
+          <SectionTitle>Notification settings</SectionTitle>
+          {([["meal", "Meal reminders"], ["bill", "Bill due alerts"], ["menu", "Menu change updates"], ["sms", "SMS notifications"]] as const).map(([k, label]) => <div key={k} className="flex items-center justify-between border-b py-3 last:border-0"><span className="text-sm font-medium">{label}</span><button role="switch" aria-checked={prefs[k]} aria-label={label} onClick={() => togglePref(k)} className={cn("relative h-6 w-11 rounded-full transition", prefs[k] ? "bg-primary" : "bg-muted")}><span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all", prefs[k] ? "left-[22px]" : "left-0.5")} /></button></div>)}
+        </Card>
+        <Card>
+          <SectionTitle>Security</SectionTitle>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label="Current password"><input type="password" className={inputCls} value={pw.cur} onChange={e => setPw({ ...pw, cur: e.target.value })} /></Field>
+            <Field label="New password"><input type="password" className={inputCls} value={pw.next} onChange={e => setPw({ ...pw, next: e.target.value })} /></Field>
+            <Field label="Confirm password"><input type="password" className={inputCls} value={pw.confirm} onChange={e => setPw({ ...pw, confirm: e.target.value })} /></Field>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button onClick={changePw}><Lock size={16} />Change password</Button>
+            <Button variant="outline" asChild><Link to="/login" onClick={() => localStorage.removeItem("studenthub-role")}><LogOut size={16} />Log out</Link></Button>
+          </div>
+        </Card>
+      </div>
+    </div></>;
+}
