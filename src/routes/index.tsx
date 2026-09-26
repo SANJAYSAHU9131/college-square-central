@@ -3,7 +3,7 @@ import {
   Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
-  WalletCards, X,
+  WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -25,12 +25,13 @@ export const Route = createFileRoute("/")({
   component: StudentHub,
 });
 
-type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin";
+type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile";
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard }, { id: "discover", label: "Discover", icon: Search },
   { id: "menu", label: "Meal Menu", icon: Utensils }, { id: "attendance", label: "Attendance", icon: CheckCircle2 },
   { id: "payments", label: "Payments", icon: CreditCard }, { id: "prediction", label: "Prediction", icon: Gauge },
-  { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "admin", label: "Admin", icon: Settings },
+  { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "profile", label: "My Profile", icon: UserRound },
+  { id: "admin", label: "Admin", icon: Settings },
 ] as const;
 
 type Role = "user" | "owner";
@@ -110,6 +111,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "prediction": return <Prediction notify={notify} />;
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
+    case "profile": return <Profile notify={notify} />;
     default: return <Dashboard navigate={navigate} />;
   }
 }
@@ -129,8 +131,19 @@ function TableWrap({ children }: { children: React.ReactNode }) { return <div cl
 const th = "border-b bg-muted/60 px-4 py-3 text-xs font-bold uppercase tracking-wide text-muted-foreground";
 const td = "border-b px-4 py-4 last:border-b-0";
 
+function useToday() {
+  const [today, setToday] = useState("");
+  useEffect(() => {
+    const fmt = () => new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+    setToday(fmt());
+    const id = setInterval(() => setToday(fmt()), 60000);
+    return () => clearInterval(id);
+  }, []);
+  return today;
+}
 function Dashboard({ navigate }: { navigate: (id: PageId) => void }) {
-  return <><PageHeader title="Welcome back, Student User" subtitle="Here’s what’s happening with your meals and campus services today." eyebrow="Wednesday, 23 September" />
+  const today = useToday();
+  return <><PageHeader title="Welcome back, Student User" subtitle="Here’s what’s happening with your meals and campus services today." eyebrow={today || "Today"} />
     <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Today's Meals" value="3" icon={Utensils} note="2 opted in" /><Stat label="Attendance" value="87%" icon={CheckCircle2} tone="success" note="26 meals this month" /><Stat label="Pending Bill" value="₹1,850" icon={WalletCards} tone="warning" note="Due 30 September" /><Stat label="Waste Saved" value="18%" icon={Leaf} tone="secondary" note="Compared with baseline" /></div>
     <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]"><Card><SectionTitle action={<Button variant="outline" size="sm" onClick={() => navigate("menu")}>View menu <ChevronRight size={14} /></Button>}>Today’s meals</SectionTitle><div>{[["Breakfast","8:00 AM – 10:00 AM",true],["Lunch","12:30 PM – 2:30 PM",true],["Dinner","7:30 PM – 9:30 PM",false]].map(([name,time,on]) => <div key={String(name)} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b py-4 last:border-0"><div className="min-w-0"><p className="font-semibold">{name}</p><p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><Clock3 size={13} />{time}</p></div><Status type={on ? "success" : "danger"}>{on ? "Opted In" : "Opted Out"}</Status></div>)}</div></Card>
       <Card><SectionTitle>Food demand</SectionTitle><div className="rounded-md bg-info-soft p-5"><p className="text-sm font-medium text-muted-foreground">Today’s expected attendance</p><p className="mt-2 font-display text-3xl font-extrabold">142 <span className="text-base font-semibold text-muted-foreground">students</span></p><div className="my-5"><Progress value={78} /></div><div className="flex justify-between text-xs"><span className="text-muted-foreground">Prediction confidence</span><strong>91%</strong></div></div></Card></div>
