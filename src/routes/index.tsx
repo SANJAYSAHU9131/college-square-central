@@ -13,6 +13,12 @@ import { cn } from "@/lib/utils";
 import messShree from "@/assets/mess-shree.jpg";
 import messCampus from "@/assets/mess-campus.jpg";
 import roomGreen from "@/assets/room-green.jpg";
+import nearbyStationery1 from "@/assets/nearby-stationery-1.jpg";
+import nearbyStationery2 from "@/assets/nearby-stationery-2.jpg";
+import nearbyPrint from "@/assets/nearby-print.jpg";
+import nearbyEservices from "@/assets/nearby-eservices.jpg";
+import nearbyGym1 from "@/assets/nearby-gym-1.jpg";
+import nearbyGym2 from "@/assets/nearby-gym-2.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -295,14 +301,14 @@ function Profile({ notify }: { notify: (s: string) => void }) {
     </div></>;
 }
 
-type NearbyPlace = { name: string; category: "Stationery" | "Form Filling & Online Services" | "Gym & Fitness"; rating: string; distance: string; price: string; address: string; phone: string; timings: string; about: string; features: string[] };
+type NearbyPlace = { img: string; name: string; category: "Stationery" | "Form Filling & Online Services" | "Gym & Fitness"; rating: string; distance: string; price: string; address: string; phone: string; timings: string; about: string; features: string[] };
 const nearbyPlaces: NearbyPlace[] = [
-  { name: "Campus Stationers", category: "Stationery", rating: "4.6", distance: "200 m", price: "₹5 onwards", address: "Shop 4, College Gate Road", phone: "+91 98220 11223", timings: "Mon–Sat, 8:30 AM – 9:00 PM", about: "Full-range stationery store for notebooks, pens, art supplies, lab records and project files at student prices.", features: ["Notebooks & pens", "Lab records", "Project binding", "Art supplies"] },
-  { name: "Study Point Stationery", category: "Stationery", rating: "4.4", distance: "450 m", price: "₹5 onwards", address: "12, Hostel Lane, North Campus", phone: "+91 98220 44556", timings: "Mon–Sun, 9:00 AM – 8:30 PM", about: "Budget stationery and exam essentials with bulk discounts for class groups and hostel students.", features: ["Exam kits", "Calculators", "Bulk discounts", "Chart papers"] },
-  { name: "QuickPrint & Xerox", category: "Form Filling & Online Services", rating: "4.7", distance: "300 m", price: "₹2 / page", address: "Shop 7, Market Complex, College Road", phone: "+91 98220 77889", timings: "Mon–Sun, 8:00 AM – 10:00 PM", about: "Printing, photocopy, scanning, online form filling, exam applications, passport photos and lamination — all in one shop.", features: ["Online form filling", "Printing & xerox", "Passport photos", "Lamination", "Exam applications"] },
-  { name: "e-Seva Online Services", category: "Form Filling & Online Services", rating: "4.5", distance: "600 m", price: "₹20 onwards", address: "2nd Floor, City Plaza, Main Road", phone: "+91 98220 99001", timings: "Mon–Sat, 9:30 AM – 8:00 PM", about: "Help with scholarship forms, exam registrations, resume printing, email setup and other online applications.", features: ["Scholarship forms", "Exam registration", "Resume printing", "Document scanning"] },
-  { name: "FitZone Gym", category: "Gym & Fitness", rating: "4.8", distance: "800 m", price: "₹800 / month", address: "1st Floor, Silver Arcade, Ring Road", phone: "+91 98220 33445", timings: "Mon–Sat, 5:30 AM – 10:00 PM", about: "Modern gym with strength and cardio zones, certified trainers and a special student membership plan.", features: ["Student discount", "Certified trainers", "Cardio zone", "Diet guidance"] },
-  { name: "PowerHouse Fitness Academy", category: "Gym & Fitness", rating: "4.6", distance: "1.2 km", price: "₹1,000 / month", address: "Plot 18, Sports Complex Road", phone: "+91 98220 66778", timings: "Mon–Sun, 6:00 AM – 9:30 PM", about: "Fitness academy offering weight training, yoga batches, Zumba and personal coaching for beginners and athletes.", features: ["Yoga & Zumba", "Personal coaching", "Weight training", "Morning batches"] },
+  { img: nearbyStationery1, name: "Campus Stationers", category: "Stationery", rating: "4.6", distance: "200 m", price: "₹5 onwards", address: "Shop 4, College Gate Road", phone: "+91 98220 11223", timings: "Mon–Sat, 8:30 AM – 9:00 PM", about: "Full-range stationery store for notebooks, pens, art supplies, lab records and project files at student prices.", features: ["Notebooks & pens", "Lab records", "Project binding", "Art supplies"] },
+  { img: nearbyStationery2, name: "Study Point Stationery", category: "Stationery", rating: "4.4", distance: "450 m", price: "₹5 onwards", address: "12, Hostel Lane, North Campus", phone: "+91 98220 44556", timings: "Mon–Sun, 9:00 AM – 8:30 PM", about: "Budget stationery and exam essentials with bulk discounts for class groups and hostel students.", features: ["Exam kits", "Calculators", "Bulk discounts", "Chart papers"] },
+  { img: nearbyPrint, name: "QuickPrint & Xerox", category: "Form Filling & Online Services", rating: "4.7", distance: "300 m", price: "₹2 / page", address: "Shop 7, Market Complex, College Road", phone: "+91 98220 77889", timings: "Mon–Sun, 8:00 AM – 10:00 PM", about: "Printing, photocopy, scanning, online form filling, exam applications, passport photos and lamination — all in one shop.", features: ["Online form filling", "Printing & xerox", "Passport photos", "Lamination", "Exam applications"] },
+  { img: nearbyEservices, name: "e-Seva Online Services", category: "Form Filling & Online Services", rating: "4.5", distance: "600 m", price: "₹20 onwards", address: "2nd Floor, City Plaza, Main Road", phone: "+91 98220 99001", timings: "Mon–Sat, 9:30 AM – 8:00 PM", about: "Help with scholarship forms, exam registrations, resume printing, email setup and other online applications.", features: ["Scholarship forms", "Exam registration", "Resume printing", "Document scanning"] },
+  { img: nearbyGym1, name: "FitZone Gym", category: "Gym & Fitness", rating: "4.8", distance: "800 m", price: "₹800 / month", address: "1st Floor, Silver Arcade, Ring Road", phone: "+91 98220 33445", timings: "Mon–Sat, 5:30 AM – 10:00 PM", about: "Modern gym with strength and cardio zones, certified trainers and a special student membership plan.", features: ["Student discount", "Certified trainers", "Cardio zone", "Diet guidance"] },
+  { img: nearbyGym2, name: "PowerHouse Fitness Academy", category: "Gym & Fitness", rating: "4.6", distance: "1.2 km", price: "₹1,000 / month", address: "Plot 18, Sports Complex Road", phone: "+91 98220 66778", timings: "Mon–Sun, 6:00 AM – 9:30 PM", about: "Fitness academy offering weight training, yoga batches, Zumba and personal coaching for beginners and athletes.", features: ["Yoga & Zumba", "Personal coaching", "Weight training", "Morning batches"] },
 ];
 
 function Nearby({ notify, query }: { notify: (s: string) => void; query: string }) {
