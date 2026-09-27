@@ -322,19 +322,21 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
     <div className="mb-6 flex flex-wrap gap-2">{cats.map(c => <button key={c} onClick={() => setCat(c)} className={cn("h-9 rounded-md border px-4 text-sm font-semibold transition", cat === c ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-accent")}>{c}</button>)}</div>
     {list.length === 0 && <Card><p className="py-8 text-center text-sm text-muted-foreground">No places match your search.</p></Card>}
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{list.map(p => { const Icon = catIcon(p.category); return (
-      <Card key={p.name} className="flex flex-col p-5">
-        <div className="flex items-start justify-between gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-info-soft text-primary"><Icon size={20} /></span>
-          <span className="rounded-md bg-warning-soft px-2 py-1 text-xs font-bold text-warning">★ {p.rating}</span>
-        </div>
-        <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-primary">{p.category}</p>
-        <h3 className="mt-1 font-display text-lg font-bold">{p.name}</h3>
+      <Card key={p.name} className="flex flex-col overflow-hidden p-0">
+        <button type="button" onClick={() => setOpen(p)} className="relative block h-44 w-full overflow-hidden" aria-label={`View details of ${p.name}`}>
+          <img src={p.img} alt={p.name} loading="lazy" width={1024} height={1024} className="h-44 w-full object-cover transition duration-300 hover:scale-105" />
+          <span className="absolute left-3 top-3 rounded-md bg-background/90 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-foreground">{p.category}</span>
+          <span className="absolute right-3 top-3 rounded-md bg-warning px-2 py-1 text-xs font-bold text-warning-foreground">★ {p.rating}</span>
+        </button>
+        <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-display text-lg font-bold">{p.name}</h3>
         <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin size={13} />{p.distance} · {p.address}</p>
         <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{p.about}</p>
         <div className="mt-3 flex flex-wrap gap-1.5">{p.features.slice(0, 3).map(f => <span key={f} className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">{f}</span>)}</div>
         <div className="mt-4 flex items-center justify-between border-t pt-4">
           <span className="text-sm font-bold">{p.price}</span>
           <Button size="sm" variant="outline" onClick={() => setOpen(p)}>View details</Button>
+        </div>
         </div>
       </Card>); })}
     </div>
@@ -344,7 +346,8 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
           <div><p className="text-xs font-bold uppercase tracking-wide text-primary">{open.category}</p><h2 className="mt-1 font-display text-2xl font-bold">{open.name}</h2></div>
           <Button size="icon" variant="outline" onClick={() => setOpen(null)} aria-label="Close details"><X size={18} /></Button>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">{open.about}</p>
+        <img src={open.img} alt={open.name} loading="lazy" width={1024} height={1024} className="mt-4 h-52 w-full rounded-lg object-cover" />
+        <p className="mt-4 text-sm text-muted-foreground">{open.about}</p>
         <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
           <p><strong>Price:</strong> {open.price}</p><p><strong>Distance:</strong> {open.distance}</p>
           <p><strong>Address:</strong> {open.address}</p><p><strong>Phone:</strong> {open.phone}</p>
