@@ -4,6 +4,7 @@ import {
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
+  MapPin, Dumbbell, Printer, ShoppingBag, Phone,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -25,12 +26,12 @@ export const Route = createFileRoute("/")({
   component: StudentHub,
 });
 
-type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile";
+type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile" | "nearby";
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard }, { id: "discover", label: "Discover", icon: Search },
   { id: "menu", label: "Meal Menu", icon: Utensils }, { id: "attendance", label: "Attendance", icon: CheckCircle2 },
   { id: "payments", label: "Payments", icon: CreditCard }, { id: "prediction", label: "Prediction", icon: Gauge },
-  { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "profile", label: "My Profile", icon: UserRound },
+  { id: "nearby", label: "Nearby", icon: MapPin }, { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "profile", label: "My Profile", icon: UserRound },
   { id: "admin", label: "Admin", icon: Settings },
 ] as const;
 
@@ -112,6 +113,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
     case "profile": return <Profile notify={notify} />;
+    case "nearby": return <Nearby notify={notify} query={query} />;
     default: return <Dashboard navigate={navigate} />;
   }
 }
