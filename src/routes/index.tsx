@@ -4,7 +4,7 @@ import {
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
-  MapPin, Dumbbell, Printer, ShoppingBag, Phone,
+  MapPin, Phone,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -13,6 +13,12 @@ import { cn } from "@/lib/utils";
 import messShree from "@/assets/mess-shree.jpg";
 import messCampus from "@/assets/mess-campus.jpg";
 import roomGreen from "@/assets/room-green.jpg";
+import nearbyStationery1 from "@/assets/nearby-stationery-1.jpg";
+import nearbyStationery2 from "@/assets/nearby-stationery-2.jpg";
+import nearbyPrint from "@/assets/nearby-print.jpg";
+import nearbyEservices from "@/assets/nearby-eservices.jpg";
+import nearbyGym1 from "@/assets/nearby-gym-1.jpg";
+import nearbyGym2 from "@/assets/nearby-gym-2.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -295,34 +301,34 @@ function Profile({ notify }: { notify: (s: string) => void }) {
     </div></>;
 }
 
-type NearbyPlace = { name: string; category: "Stationery" | "Form Filling & Online Services" | "Gym & Fitness"; rating: string; distance: string; price: string; address: string; phone: string; timings: string; about: string; features: string[] };
+type NearbyPlace = { img: string; name: string; category: "Stationery" | "Form Filling & Online Services" | "Gym & Fitness"; rating: string; distance: string; price: string; address: string; phone: string; timings: string; about: string; features: string[] };
 const nearbyPlaces: NearbyPlace[] = [
-  { name: "Campus Stationers", category: "Stationery", rating: "4.6", distance: "200 m", price: "₹5 onwards", address: "Shop 4, College Gate Road", phone: "+91 98220 11223", timings: "Mon–Sat, 8:30 AM – 9:00 PM", about: "Full-range stationery store for notebooks, pens, art supplies, lab records and project files at student prices.", features: ["Notebooks & pens", "Lab records", "Project binding", "Art supplies"] },
-  { name: "Study Point Stationery", category: "Stationery", rating: "4.4", distance: "450 m", price: "₹5 onwards", address: "12, Hostel Lane, North Campus", phone: "+91 98220 44556", timings: "Mon–Sun, 9:00 AM – 8:30 PM", about: "Budget stationery and exam essentials with bulk discounts for class groups and hostel students.", features: ["Exam kits", "Calculators", "Bulk discounts", "Chart papers"] },
-  { name: "QuickPrint & Xerox", category: "Form Filling & Online Services", rating: "4.7", distance: "300 m", price: "₹2 / page", address: "Shop 7, Market Complex, College Road", phone: "+91 98220 77889", timings: "Mon–Sun, 8:00 AM – 10:00 PM", about: "Printing, photocopy, scanning, online form filling, exam applications, passport photos and lamination — all in one shop.", features: ["Online form filling", "Printing & xerox", "Passport photos", "Lamination", "Exam applications"] },
-  { name: "e-Seva Online Services", category: "Form Filling & Online Services", rating: "4.5", distance: "600 m", price: "₹20 onwards", address: "2nd Floor, City Plaza, Main Road", phone: "+91 98220 99001", timings: "Mon–Sat, 9:30 AM – 8:00 PM", about: "Help with scholarship forms, exam registrations, resume printing, email setup and other online applications.", features: ["Scholarship forms", "Exam registration", "Resume printing", "Document scanning"] },
-  { name: "FitZone Gym", category: "Gym & Fitness", rating: "4.8", distance: "800 m", price: "₹800 / month", address: "1st Floor, Silver Arcade, Ring Road", phone: "+91 98220 33445", timings: "Mon–Sat, 5:30 AM – 10:00 PM", about: "Modern gym with strength and cardio zones, certified trainers and a special student membership plan.", features: ["Student discount", "Certified trainers", "Cardio zone", "Diet guidance"] },
-  { name: "PowerHouse Fitness Academy", category: "Gym & Fitness", rating: "4.6", distance: "1.2 km", price: "₹1,000 / month", address: "Plot 18, Sports Complex Road", phone: "+91 98220 66778", timings: "Mon–Sun, 6:00 AM – 9:30 PM", about: "Fitness academy offering weight training, yoga batches, Zumba and personal coaching for beginners and athletes.", features: ["Yoga & Zumba", "Personal coaching", "Weight training", "Morning batches"] },
+  { img: nearbyStationery1, name: "Campus Stationers", category: "Stationery", rating: "4.6", distance: "200 m", price: "₹5 onwards", address: "Shop 4, College Gate Road", phone: "+91 98220 11223", timings: "Mon–Sat, 8:30 AM – 9:00 PM", about: "Full-range stationery store for notebooks, pens, art supplies, lab records and project files at student prices.", features: ["Notebooks & pens", "Lab records", "Project binding", "Art supplies"] },
+  { img: nearbyStationery2, name: "Study Point Stationery", category: "Stationery", rating: "4.4", distance: "450 m", price: "₹5 onwards", address: "12, Hostel Lane, North Campus", phone: "+91 98220 44556", timings: "Mon–Sun, 9:00 AM – 8:30 PM", about: "Budget stationery and exam essentials with bulk discounts for class groups and hostel students.", features: ["Exam kits", "Calculators", "Bulk discounts", "Chart papers"] },
+  { img: nearbyPrint, name: "QuickPrint & Xerox", category: "Form Filling & Online Services", rating: "4.7", distance: "300 m", price: "₹2 / page", address: "Shop 7, Market Complex, College Road", phone: "+91 98220 77889", timings: "Mon–Sun, 8:00 AM – 10:00 PM", about: "Printing, photocopy, scanning, online form filling, exam applications, passport photos and lamination — all in one shop.", features: ["Online form filling", "Printing & xerox", "Passport photos", "Lamination", "Exam applications"] },
+  { img: nearbyEservices, name: "e-Seva Online Services", category: "Form Filling & Online Services", rating: "4.5", distance: "600 m", price: "₹20 onwards", address: "2nd Floor, City Plaza, Main Road", phone: "+91 98220 99001", timings: "Mon–Sat, 9:30 AM – 8:00 PM", about: "Help with scholarship forms, exam registrations, resume printing, email setup and other online applications.", features: ["Scholarship forms", "Exam registration", "Resume printing", "Document scanning"] },
+  { img: nearbyGym1, name: "FitZone Gym", category: "Gym & Fitness", rating: "4.8", distance: "800 m", price: "₹800 / month", address: "1st Floor, Silver Arcade, Ring Road", phone: "+91 98220 33445", timings: "Mon–Sat, 5:30 AM – 10:00 PM", about: "Modern gym with strength and cardio zones, certified trainers and a special student membership plan.", features: ["Student discount", "Certified trainers", "Cardio zone", "Diet guidance"] },
+  { img: nearbyGym2, name: "PowerHouse Fitness Academy", category: "Gym & Fitness", rating: "4.6", distance: "1.2 km", price: "₹1,000 / month", address: "Plot 18, Sports Complex Road", phone: "+91 98220 66778", timings: "Mon–Sun, 6:00 AM – 9:30 PM", about: "Fitness academy offering weight training, yoga batches, Zumba and personal coaching for beginners and athletes.", features: ["Yoga & Zumba", "Personal coaching", "Weight training", "Morning batches"] },
 ];
 
 function Nearby({ notify, query }: { notify: (s: string) => void; query: string }) {
   const [cat, setCat] = useState<"All" | NearbyPlace["category"]>("All");
   const [open, setOpen] = useState<NearbyPlace | null>(null);
   const cats = ["All", "Stationery", "Form Filling & Online Services", "Gym & Fitness"] as const;
-  const catIcon = (c: NearbyPlace["category"]) => c === "Stationery" ? ShoppingBag : c === "Gym & Fitness" ? Dumbbell : Printer;
   const list = nearbyPlaces.filter(p => (cat === "All" || p.category === cat) && (!query || (p.name + p.category + p.features.join(" ")).toLowerCase().includes(query.toLowerCase())));
   return <>
     <PageHeader title="Nearby Services" subtitle="Stationery stores, form-filling & online service shops, and gyms around your campus." eyebrow="Around campus" />
     <div className="mb-6 flex flex-wrap gap-2">{cats.map(c => <button key={c} onClick={() => setCat(c)} className={cn("h-9 rounded-md border px-4 text-sm font-semibold transition", cat === c ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-accent")}>{c}</button>)}</div>
     {list.length === 0 && <Card><p className="py-8 text-center text-sm text-muted-foreground">No places match your search.</p></Card>}
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{list.map(p => { const Icon = catIcon(p.category); return (
-      <Card key={p.name} className="flex flex-col p-5">
-        <div className="flex items-start justify-between gap-3">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-info-soft text-primary"><Icon size={20} /></span>
-          <span className="rounded-md bg-warning-soft px-2 py-1 text-xs font-bold text-warning">★ {p.rating}</span>
-        </div>
-        <p className="mt-3 text-[11px] font-bold uppercase tracking-wide text-primary">{p.category}</p>
-        <h3 className="mt-1 font-display text-lg font-bold">{p.name}</h3>
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{list.map(p => (
+      <Card key={p.name} className="flex flex-col overflow-hidden p-0">
+        <button type="button" onClick={() => setOpen(p)} className="relative block h-44 w-full overflow-hidden" aria-label={`View details of ${p.name}`}>
+          <img src={p.img} alt={p.name} loading="lazy" width={1024} height={1024} className="h-44 w-full object-cover transition duration-300 hover:scale-105" />
+          <span className="absolute left-3 top-3 rounded-md bg-background/90 px-2 py-1 text-[11px] font-bold uppercase tracking-wide text-foreground">{p.category}</span>
+          <span className="absolute right-3 top-3 rounded-md bg-warning px-2 py-1 text-xs font-bold text-warning-foreground">★ {p.rating}</span>
+        </button>
+        <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-display text-lg font-bold">{p.name}</h3>
         <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin size={13} />{p.distance} · {p.address}</p>
         <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{p.about}</p>
         <div className="mt-3 flex flex-wrap gap-1.5">{p.features.slice(0, 3).map(f => <span key={f} className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">{f}</span>)}</div>
@@ -330,7 +336,8 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
           <span className="text-sm font-bold">{p.price}</span>
           <Button size="sm" variant="outline" onClick={() => setOpen(p)}>View details</Button>
         </div>
-      </Card>); })}
+        </div>
+      </Card>))}
     </div>
     {open && <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/50 p-4" onClick={() => setOpen(null)} role="dialog" aria-modal="true" aria-label={open.name}>
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
@@ -338,7 +345,8 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
           <div><p className="text-xs font-bold uppercase tracking-wide text-primary">{open.category}</p><h2 className="mt-1 font-display text-2xl font-bold">{open.name}</h2></div>
           <Button size="icon" variant="outline" onClick={() => setOpen(null)} aria-label="Close details"><X size={18} /></Button>
         </div>
-        <p className="mt-3 text-sm text-muted-foreground">{open.about}</p>
+        <img src={open.img} alt={open.name} loading="lazy" width={1024} height={1024} className="mt-4 h-52 w-full rounded-lg object-cover" />
+        <p className="mt-4 text-sm text-muted-foreground">{open.about}</p>
         <div className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
           <p><strong>Price:</strong> {open.price}</p><p><strong>Distance:</strong> {open.distance}</p>
           <p><strong>Address:</strong> {open.address}</p><p><strong>Phone:</strong> {open.phone}</p>
