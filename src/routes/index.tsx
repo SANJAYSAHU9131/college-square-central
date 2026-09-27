@@ -315,13 +315,12 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
   const [cat, setCat] = useState<"All" | NearbyPlace["category"]>("All");
   const [open, setOpen] = useState<NearbyPlace | null>(null);
   const cats = ["All", "Stationery", "Form Filling & Online Services", "Gym & Fitness"] as const;
-  const catIcon = (c: NearbyPlace["category"]) => c === "Stationery" ? ShoppingBag : c === "Gym & Fitness" ? Dumbbell : Printer;
   const list = nearbyPlaces.filter(p => (cat === "All" || p.category === cat) && (!query || (p.name + p.category + p.features.join(" ")).toLowerCase().includes(query.toLowerCase())));
   return <>
     <PageHeader title="Nearby Services" subtitle="Stationery stores, form-filling & online service shops, and gyms around your campus." eyebrow="Around campus" />
     <div className="mb-6 flex flex-wrap gap-2">{cats.map(c => <button key={c} onClick={() => setCat(c)} className={cn("h-9 rounded-md border px-4 text-sm font-semibold transition", cat === c ? "border-primary bg-primary text-primary-foreground" : "bg-card text-muted-foreground hover:bg-accent")}>{c}</button>)}</div>
     {list.length === 0 && <Card><p className="py-8 text-center text-sm text-muted-foreground">No places match your search.</p></Card>}
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{list.map(p => { const Icon = catIcon(p.category); return (
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">{list.map(p => (
       <Card key={p.name} className="flex flex-col overflow-hidden p-0">
         <button type="button" onClick={() => setOpen(p)} className="relative block h-44 w-full overflow-hidden" aria-label={`View details of ${p.name}`}>
           <img src={p.img} alt={p.name} loading="lazy" width={1024} height={1024} className="h-44 w-full object-cover transition duration-300 hover:scale-105" />
