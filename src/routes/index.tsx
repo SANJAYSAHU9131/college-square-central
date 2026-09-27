@@ -4,7 +4,7 @@ import {
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
-  MapPin, Dumbbell, Printer, ShoppingBag, Phone,
+  MapPin, Phone,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -337,7 +337,7 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
           <Button size="sm" variant="outline" onClick={() => setOpen(p)}>View details</Button>
         </div>
         </div>
-      </Card>); })}
+      </Card>))}
     </div>
     {open && <div className="fixed inset-0 z-50 grid place-items-center bg-foreground/50 p-4" onClick={() => setOpen(null)} role="dialog" aria-modal="true" aria-label={open.name}>
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
