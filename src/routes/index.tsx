@@ -4,7 +4,7 @@ import {
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
-  MapPin, Phone,
+  MapPin, Phone, Navigation,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -302,6 +302,7 @@ function Profile({ notify }: { notify: (s: string) => void }) {
 }
 
 type NearbyPlace = { img: string; name: string; category: "Stationery" | "Form Filling & Online Services" | "Gym & Fitness"; rating: string; distance: string; price: string; address: string; phone: string; timings: string; about: string; features: string[] };
+const mapsDirUrl = (p: NearbyPlace) => `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${p.name}, ${p.address}`)}`;
 const nearbyPlaces: NearbyPlace[] = [
   { img: nearbyStationery1, name: "Campus Stationers", category: "Stationery", rating: "4.6", distance: "200 m", price: "₹5 onwards", address: "Shop 4, College Gate Road", phone: "+91 98220 11223", timings: "Mon–Sat, 8:30 AM – 9:00 PM", about: "Full-range stationery store for notebooks, pens, art supplies, lab records and project files at student prices.", features: ["Notebooks & pens", "Lab records", "Project binding", "Art supplies"] },
   { img: nearbyStationery2, name: "Study Point Stationery", category: "Stationery", rating: "4.4", distance: "450 m", price: "₹5 onwards", address: "12, Hostel Lane, North Campus", phone: "+91 98220 44556", timings: "Mon–Sun, 9:00 AM – 8:30 PM", about: "Budget stationery and exam essentials with bulk discounts for class groups and hostel students.", features: ["Exam kits", "Calculators", "Bulk discounts", "Chart papers"] },
@@ -332,9 +333,12 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
         <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin size={13} />{p.distance} · {p.address}</p>
         <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{p.about}</p>
         <div className="mt-3 flex flex-wrap gap-1.5">{p.features.slice(0, 3).map(f => <span key={f} className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">{f}</span>)}</div>
-        <div className="mt-4 flex items-center justify-between border-t pt-4">
+        <div className="mt-4 flex items-center justify-between gap-2 border-t pt-4">
           <span className="text-sm font-bold">{p.price}</span>
-          <Button size="sm" variant="outline" onClick={() => setOpen(p)}>View details</Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" asChild><a href={mapsDirUrl(p)} target="_blank" rel="noreferrer" aria-label={`Get directions to ${p.name}`}><Navigation size={14} />Directions</a></Button>
+            <Button size="sm" variant="outline" onClick={() => setOpen(p)}>View details</Button>
+          </div>
         </div>
         </div>
       </Card>))}
@@ -355,6 +359,7 @@ function Nearby({ notify, query }: { notify: (s: string) => void; query: string 
         <div className="mt-5 flex flex-wrap gap-2">{open.features.map(f => <span key={f} className="rounded-md bg-info-soft px-2.5 py-1 text-xs font-semibold text-primary">{f}</span>)}</div>
         <div className="mt-6 flex flex-wrap gap-3">
           <Button onClick={() => { notify(`Saved ${open.name} to your places`); setOpen(null); }}>Save place</Button>
+          <Button variant="outline" asChild><a href={mapsDirUrl(open)} target="_blank" rel="noreferrer" aria-label={`Get directions to ${open.name}`}><Navigation size={16} />Directions</a></Button>
           <Button variant="outline" asChild><a href={`tel:${open.phone.replace(/\s/g, "")}`}><Phone size={16} />Call</a></Button>
         </div>
       </div>
