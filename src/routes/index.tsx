@@ -199,10 +199,47 @@ function MealMenu() {
   <p className="mt-3 text-xs text-muted-foreground">Timings: Breakfast 8–10 AM · Lunch 12:30–2:30 PM · Snacks 5–6 PM · Dinner 7:30–9:30 PM. Sunday lunch is a special thali.</p></>;
 }
 
+type MealName = "Breakfast" | "Lunch" | "Dinner";
+const MEALS: { name: MealName; cutoff: number; label: string; time: string }[] = [
+  { name: "Breakfast", cutoff: 7, label: "Cut-off: 7:00 AM", time: "8:00 – 10:00 AM" },
+  { name: "Lunch", cutoff: 11, label: "Cut-off: 11:00 AM", time: "12:30 – 2:30 PM" },
+  { name: "Dinner", cutoff: 18, label: "Cut-off: 6:00 PM", time: "7:30 – 9:30 PM" },
+];
+const dateKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
+function loadAttendance(): Record<string, Record<MealName, boolean>> {
+  try { return JSON.parse(localStorage.getItem("studenthub-attendance") ?? "{}") as Record<string, Record<MealName, boolean>>; } catch { return {}; }
+}
+
 function Attendance({ notify }: { notify: (s: string) => void }) {
-  const [meals,setMeals] = useState({ Breakfast:true, Lunch:true, Dinner:false });
-  const toggle = (name: keyof typeof meals) => { const next=!meals[name]; setMeals({...meals,[name]:next}); notify(next ? "Meal attendance confirmed" : "Meal attendance cancelled"); };
-  return <><PageHeader title="Meal Attendance" subtitle="Opt in or out before each meal’s cut-off time." eyebrow="Today’s schedule" /><div className="grid gap-6 xl:grid-cols-[.75fr_1.25fr]"><Card><SectionTitle>Monthly attendance</SectionTitle><div className="flex flex-col items-center py-3"><div className="grid h-44 w-44 place-items-center rounded-full" style={{background:"conic-gradient(var(--primary) 0 87%, var(--muted) 87% 100%)"}}><div className="grid h-32 w-32 place-items-center rounded-full bg-card"><div className="text-center"><p className="font-display text-3xl font-extrabold">87%</p><p className="text-xs text-muted-foreground">attendance</p></div></div></div><p className="mt-5 text-sm text-muted-foreground"><strong className="text-foreground">26 meals</strong> attended this month</p></div></Card><Card><SectionTitle>Today’s meal selection</SectionTitle>{([ ["Breakfast","Cut-off: 7:00 AM"],["Lunch","Cut-off: 11:00 AM"],["Dinner","Cut-off: 6:00 PM"]] as const).map(([name,time]) => <div key={name} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b py-4 last:border-0"><div><p className="font-semibold">{name}</p><p className="mt-1 text-xs text-muted-foreground">{time}</p></div><Button variant={meals[name] ? "success" : "destructive"} size="sm" onClick={() => toggle(name)}>{meals[name] ? <CheckCircle2 size={15} /> : <X size={15} />}{meals[name] ? "Opted In" : "Opted Out"}</Button></div>)}</Card></div></>;
+  const [records, setRecords] = useState<Record<string, Record<MealName, boolean>>>(loadAttendance);
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => { const t = setInterval(() => setNow(new Date()), 60_000); return () => clearInterval(t); }, []);
+  const save = (next: Record<string, Record<MealName, boolean>>) => { setRecords(next); try { localStorage.setItem("studenthub-attendance", JSON.stringify(next)); } catch { /* ignore */ } };
+  const getDay = (d: Date): Record<MealName, boolean> => records[dateKey(d)] ?? { Breakfast: true, Lunch: true, Dinner: true };
+  const toggle = (d: Date, name: MealName, isToday: boolean) => {
+    if (isToday) { const m = MEALS.find((x) => x.name === name)!; if (now.getHours() >= m.cutoff) { notify(`Cut-off passed for ${name} — changes are locked`); return; } }
+    const k = dateKey(d); const day = { ...getDay(d) }; day[name] = !day[name];
+    save({ ...records, [k]: day });
+    notify(day[name] ? `${name} attendance confirmed for ${isToday ? "today" : "tomorrow"}` : `${name} cancelled for ${isToday ? "today" : "tomorrow"}`);
+  };
+  const today = new Date(); const tomorrow = new Date(); tomorrow.setDate(today.getDate() + 1);
+  const todayRec = getDay(today); const tomorrowRec = getDay(tomorrow);
+  const optedToday = MEALS.filter((m) => todayRec[m.name]).length;
+  // Monthly stats: count this month's recorded opted-in meals plus 24 baseline attended meals
+  const monthPrefix = dateKey(today).slice(0, 7);
+  const monthKeys = Object.keys(records).filter((k) => k.startsWith(monthPrefix));
+  const attended = 24 + monthKeys.reduce((n, k) => { const r = records[k]!; return n + MEALS.filter((m) => r[m.name]).length; }, 0);
+  const total = 28 + monthKeys.length * 3;
+  const pct = Math.min(100, Math.round((attended / total) * 100));
+  const mealRow = (d: Date, rec: Record<MealName, boolean>, isToday: boolean) => MEALS.map((m) => {
+    const locked = isToday && now.getHours() >= m.cutoff;
+    return <div key={m.name} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-b py-4 last:border-0"><div><p className="font-semibold">{m.name}</p><p className="mt-1 text-xs text-muted-foreground">{m.time} · {m.label}{locked && <span className="ml-1 font-semibold text-danger">(locked)</span>}</p></div><Button variant={rec[m.name] ? "success" : "destructive"} size="sm" disabled={locked} onClick={() => toggle(d, m.name, isToday)}>{rec[m.name] ? <CheckCircle2 size={15} /> : <X size={15} />}{rec[m.name] ? "Opted In" : "Opted Out"}</Button></div>;
+  });
+  return <><PageHeader title="Meal Attendance" subtitle="Opt in or out before each meal’s cut-off time. Your choices are saved automatically." eyebrow="Attendance workspace" />
+    <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Today's Meals" value={`${optedToday}/3`} icon={Utensils} note="Opted in today" /><Stat label="Attendance" value={`${pct}%`} icon={CheckCircle2} tone="success" note={`${attended} meals this month`} /><Stat label="Tomorrow" value={`${MEALS.filter((m) => tomorrowRec[m.name]).length}/3`} icon={CalendarDays} tone="secondary" note="Meals planned" /><Stat label="Waste Saved" value="18%" icon={Leaf} tone="secondary" note="Thanks to your opt-outs" /></div>
+    <div className="grid gap-6 xl:grid-cols-[.75fr_1.25fr]"><Card><SectionTitle>Monthly attendance</SectionTitle><div className="flex flex-col items-center py-3"><div className="grid h-44 w-44 place-items-center rounded-full" style={{ background: `conic-gradient(var(--primary) 0 ${pct}%, var(--muted) ${pct}% 100%)` }}><div className="grid h-32 w-32 place-items-center rounded-full bg-card"><div className="text-center"><p className="font-display text-3xl font-extrabold">{pct}%</p><p className="text-xs text-muted-foreground">attendance</p></div></div></div><p className="mt-5 text-sm text-muted-foreground"><strong className="text-foreground">{attended} meals</strong> attended this month</p><p className="mt-1 text-xs text-muted-foreground">The ring updates as you mark meals.</p></div></Card>
+      <div className="space-y-6"><Card><SectionTitle>Today’s meal selection</SectionTitle>{mealRow(today, todayRec, true)}</Card><Card><SectionTitle>Plan tomorrow</SectionTitle>{mealRow(tomorrow, tomorrowRec, false)}</Card></div></div></>;
 }
 
 function Payments({ notify }: { notify: (s: string) => void }) { return <><PageHeader title="Payments & Billing" subtitle="Manage your mess bills and review payment history." eyebrow="Billing overview" /><div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Current Bill" value="₹1,850" icon={CircleDollarSign}/><Stat label="Due Date" value="30 Sep" icon={CalendarDays} tone="warning"/><Stat label="Paid This Year" value="₹18,400" icon={WalletCards} tone="success"/><Stat label="Status" value="Pending" icon={Clock3} tone="warning"/></div><Card className="p-0"><div className="p-5"><SectionTitle action={<Button onClick={() => notify("Payment gateway opened")}><CreditCard size={17}/>Pay ₹1,850</Button>}>Payment history</SectionTitle></div><TableWrap><thead><tr>{["Date","Description","Amount","Status"].map(h=><th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{[["01 Sep 2026","Mess Subscription","₹2,500"],["01 Aug 2026","Mess Subscription","₹2,500"]].map(r=><tr key={r[0]}>{r.map(v=><td className={td} key={v}>{v}</td>)}<td className={td}><Status>Paid</Status></td></tr>)}</tbody></TableWrap></Card></>; }
