@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Brain, CalendarDays, CheckCircle2, Plus, RotateCcw, Sparkles, TrendingDown, TrendingUp, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AiDemandAdvisor } from "@/components/AiDemandAdvisor";
 
 type Meal = "Breakfast" | "Lunch" | "Dinner";
 const MEALS: Meal[] = ["Breakfast", "Lunch", "Dinner"];
@@ -148,6 +149,10 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
         </div>
         <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground">{wasteNow > buffer ? <TrendingDown size={16} className="text-success" /> : <TrendingUp size={16} className="text-warning" />}Cooking by this plan would cut waste from <strong className="text-foreground">{wasteNow.toFixed(1)}%</strong> to about <strong className="text-foreground">{buffer}%</strong>.</p>
       </div>
+
+      <AiDemandAdvisor notify={notify} subscribed={SUBSCRIBED}
+        recordsCsv={"date,meal,served,prepared\n" + [...recs].sort((a, b) => (a.date < b.date ? -1 : 1)).slice(-126).map((r) => `${r.date},${r.meal},${r.served},${r.prepared}`).join("\n")}
+        forecastText={plan.map((p) => `${fmt(p.date)} (${p.ev}): ` + MEALS.map((m) => `${m} ${p.per[m]}`).join(", ")).join("\n")} />
 
       <div className="grid gap-6 xl:grid-cols-2">
         <form onSubmit={addRecord} className={card}>
