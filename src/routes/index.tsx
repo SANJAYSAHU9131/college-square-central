@@ -1,3 +1,4 @@
+import { Jankalyan } from "@/components/Jankalyan";
 import { DemandPredictor } from "@/components/DemandPredictor";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
@@ -5,7 +6,7 @@ import {
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
-  MapPin, Phone, Navigation,
+  MapPin, Phone, Navigation, HandHeart,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -33,12 +34,13 @@ export const Route = createFileRoute("/")({
   component: StudentHub,
 });
 
-type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile" | "nearby";
+type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile" | "nearby" | "jankalyan";
 const navItems = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard }, { id: "discover", label: "Discover", icon: Search },
   { id: "menu", label: "Meal Menu", icon: Utensils }, { id: "attendance", label: "Attendance", icon: CheckCircle2 },
   { id: "payments", label: "Payments", icon: CreditCard }, { id: "prediction", label: "Prediction", icon: Gauge },
   { id: "nearby", label: "Nearby", icon: MapPin }, { id: "feedback", label: "Feedback", icon: MessageSquareText }, { id: "profile", label: "My Profile", icon: UserRound },
+  { id: "jankalyan", label: "Jankalyan", icon: HandHeart },
   { id: "admin", label: "Admin", icon: Settings },
 ] as const;
 
@@ -103,14 +105,14 @@ function StudentHub() {
         <div className="flex shrink-0 items-center gap-3"><div className="relative">{notifOpen && <div className="fixed inset-0 z-30" onClick={() => setNotifOpen(false)} aria-hidden="true" />}<button onClick={() => setNotifOpen(o => !o)} className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications" aria-expanded={notifOpen}><Bell size={18} />{unread > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-card">{unread}</span>}</button>{notifOpen && <div className="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-lg border bg-card shadow-xl" role="dialog" aria-label="Notifications"><div className="flex items-center justify-between border-b px-4 py-3"><p className="font-display text-sm font-bold">Notifications{unread > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{unread} new</span>}</p><button onClick={markAllRead} className="text-xs font-semibold text-primary hover:underline">Mark all read</button></div><ul className="max-h-80 overflow-y-auto">{notifs.map(n => <li key={n.id}><button onClick={() => openNotif(n.id)} className={cn("flex w-full gap-3 px-4 py-3 text-left transition hover:bg-accent", !n.read && "bg-info-soft/50")}><span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.read ? "bg-transparent" : "bg-primary")} /><span className="min-w-0"><span className="block text-sm font-semibold">{n.title}</span><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{n.text}</span><span className="mt-1 block text-[11px] text-muted-foreground">{n.time}</span></span></button></li>)}</ul></div>}</div><Link to="/login" className="hidden h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:inline-flex">Login</Link><div className="hidden text-right sm:block"><p className="text-sm font-semibold">{role === "owner" ? "Mess Owner" : "Student User"}</p><p className="text-xs text-muted-foreground">{role === "owner" ? "Owner" : "Student"}</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{role === "owner" ? "MO" : "SU"}</div></div>
       </header>
       <main className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8">
-        <div key={page} className="page-enter">{renderPage(role === "user" && (page === "prediction" || page === "admin") ? "dashboard" : page, navigate, notify, query)}</div>
+        <div key={page} className="page-enter">{renderPage(role === "user" && (page === "prediction" || page === "admin") ? "dashboard" : page, navigate, notify, query, role)}</div>
       </main>
     </div>
     {toast && <div role="status" className="fixed bottom-5 right-5 z-50 flex max-w-[calc(100vw-2.5rem)] items-center gap-3 rounded-md bg-foreground px-4 py-3 text-sm font-medium text-background shadow-xl"><CheckCircle2 size={18} className="text-secondary" />{toast}</div>}
   </div>;
 }
 
-function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (message: string) => void, query: string) {
+function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (message: string) => void, query: string, role: Role = "user") {
   switch (page) {
     case "discover": return <Discover notify={notify} query={query} />;
     case "menu": return <MealMenu />;
@@ -120,6 +122,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
     case "profile": return <Profile notify={notify} />;
+    case "jankalyan": return <Jankalyan role={role} notify={notify} />;
     case "nearby": return <Nearby notify={notify} query={query} />;
     default: return <Dashboard navigate={navigate} />;
   }
