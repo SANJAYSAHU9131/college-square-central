@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Brain, CalendarDays, CheckCircle2, Plus, RotateCcw, Sparkles, TrendingDown, TrendingUp, Utensils } from "lucide-react";
+import { Download, Brain, CalendarDays, CheckCircle2, Plus, RotateCcw, Sparkles, TrendingDown, TrendingUp, Utensils } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AiDemandAdvisor } from "@/components/AiDemandAdvisor";
@@ -85,6 +85,15 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
   const tomorrow = plan[1]!; const tomorrowTotal = MEALS.reduce((s, m) => s + tomorrow.per[m], 0);
   const maxBar = Math.max(1, ...plan.map((p) => p.per[meal]));
   const history14 = recs.filter((r) => r.meal === meal && parse(r.date) >= addDays(today, -14)).sort((a, b) => (a.date < b.date ? -1 : 1));
+  const backtest = useMemo(() => Array.from({ length: 7 }, (_, i) => dk(addDays(today, i - 7))).map((date) => {
+    const r = recs.find((x) => x.date === date && x.meal === meal);
+    return { date, actual: r?.served ?? null, predicted: forecast(recs, meal, parse(date), events[date] ?? "normal") };
+  }), [recs, events, meal, today]);
+  const exportPlan = () => {
+    const rows = ["Date,Event," + MEALS.map((m) => `${m} demand,${m} cook`).join(",") + ",Total cook"].concat(plan.map((p) => [p.date, p.ev, ...MEALS.flatMap((m) => [p.per[m], Math.round(p.per[m] * (1 + buffer / 100))]), MEALS.reduce((s, m) => s + Math.round(p.per[m] * (1 + buffer / 100)), 0)].join(",")));
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([rows.join("\n")], { type: "text/csv" })); a.download = `kitchen-plan-${days[0]}.csv`; a.click(); URL.revokeObjectURL(a.href);
+    notify("Kitchen plan downloaded");
+  };
   const prep = (n: number) => Math.round(n * (1 + buffer / 100));
 
   const addRecord = (e: React.FormEvent) => {
@@ -126,13 +135,19 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
             </div>
           ))}
         </div>
+        <div className="mt-5 overflow-x-auto"><p className="mb-2 text-sm font-semibold">Forecast vs actual — last 7 days ({meal})</p><table className="w-full min-w-[560px] text-sm"><tbody>
+          <tr className="text-xs text-muted-foreground"><td className="py-1">Day</td>{backtest.map((b) => <td key={b.date}>{fmt(b.date).split(",")[0]} {parse(b.date).getDate()}</td>)}</tr>
+          <tr><td className="py-1 text-muted-foreground">Predicted</td>{backtest.map((b) => <td key={b.date}>{b.predicted}</td>)}</tr>
+          <tr><td className="py-1 text-muted-foreground">Actual</td>{backtest.map((b) => <td key={b.date} className="font-bold">{b.actual ?? "—"}</td>)}</tr>
+          <tr><td className="py-1 text-muted-foreground">Error</td>{backtest.map((b) => { const e = b.actual ? Math.round(((b.predicted - b.actual) / b.actual) * 100) : null; return <td key={b.date} className={cn("font-semibold", e === null ? "" : Math.abs(e) <= 5 ? "text-success" : "text-warning")}>{e === null ? "—" : `${e > 0 ? "+" : ""}${e}%`}</td>; })}</tr>
+        </tbody></table></div>
         <p className="mt-4 text-xs text-muted-foreground">Last 14 days actual ({meal}): {history14.map((r) => r.served).join(" · ") || "no data"}</p>
       </div>
 
       <div className={card}>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-display text-lg font-bold">Kitchen preparation plan</h2>
-          <label className="flex items-center gap-3 text-sm">Safety buffer <input type="range" min={0} max={20} value={buffer} onChange={(e) => setBuffer(Number(e.target.value))} aria-label="Safety buffer" /> <strong>{buffer}%</strong></label>
+          <div className="flex flex-wrap items-center gap-4"><Button size="sm" variant="outline" onClick={exportPlan}><Download size={15} />Download plan</Button><label className="flex items-center gap-3 text-sm">Safety buffer <input type="range" min={0} max={20} value={buffer} onChange={(e) => setBuffer(Number(e.target.value))} aria-label="Safety buffer" /> <strong>{buffer}%</strong></label></div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
