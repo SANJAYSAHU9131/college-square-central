@@ -121,7 +121,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "prediction": return <Prediction notify={notify} />;
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
-    case "profile": return <Profile notify={notify} />;
+    case "profile": return role === "owner" ? <OwnerProfile notify={notify} /> : <Profile notify={notify} />;
     case "jankalyan": return <Jankalyan role={role} notify={notify} />;
     case "nearby": return <Nearby notify={notify} query={query} />;
     default: return <Dashboard navigate={navigate} />;
