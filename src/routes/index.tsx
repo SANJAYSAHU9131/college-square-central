@@ -1,4 +1,5 @@
 import { Jankalyan } from "@/components/Jankalyan";
+import { OwnerProfile } from "@/components/OwnerProfile";
 import { DemandPredictor } from "@/components/DemandPredictor";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
