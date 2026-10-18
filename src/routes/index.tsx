@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import messShree from "@/assets/mess-shree.jpg";
 import messCampus from "@/assets/mess-campus.jpg";
-import roomGreen from "@/assets/room-green.jpg";
 import nearbyStationery1 from "@/assets/nearby-stationery-1.jpg";
 import nearbyStationery2 from "@/assets/nearby-stationery-2.jpg";
 import nearbyPrint from "@/assets/nearby-print.jpg";
@@ -116,7 +115,7 @@ function StudentHub() {
 function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (message: string) => void, query: string, role: Role = "user") {
   switch (page) {
     case "discover": return <Discover notify={notify} query={query} />;
-    case "menu": return <MealMenu />;
+    case "menu": return <MealMenu role={role} notify={notify} />;
     case "attendance": return <Attendance notify={notify} />;
     case "payments": return <Payments notify={notify} />;
     case "prediction": return <Prediction notify={notify} />;
