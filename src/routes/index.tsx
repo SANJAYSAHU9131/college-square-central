@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import messShree from "@/assets/mess-shree.jpg";
 import messCampus from "@/assets/mess-campus.jpg";
-import roomGreen from "@/assets/room-green.jpg";
 import nearbyStationery1 from "@/assets/nearby-stationery-1.jpg";
 import nearbyStationery2 from "@/assets/nearby-stationery-2.jpg";
 import nearbyPrint from "@/assets/nearby-print.jpg";
@@ -116,7 +115,7 @@ function StudentHub() {
 function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (message: string) => void, query: string, role: Role = "user") {
   switch (page) {
     case "discover": return <Discover notify={notify} query={query} />;
-    case "menu": return <MealMenu />;
+    case "menu": return <MealMenu role={role} notify={notify} />;
     case "attendance": return <Attendance notify={notify} />;
     case "payments": return <Payments notify={notify} />;
     case "prediction": return <Prediction notify={notify} />;
@@ -125,7 +124,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "profile": return role === "owner" ? <OwnerProfile notify={notify} /> : <Profile notify={notify} />;
     case "jankalyan": return <Jankalyan role={role} notify={notify} />;
     case "nearby": return <Nearby notify={notify} query={query} />;
-    default: return <Dashboard navigate={navigate} />;
+    default: return <Dashboard navigate={navigate} role={role} />;
   }
 }
 
@@ -154,10 +153,15 @@ function useToday() {
   }, []);
   return today;
 }
-function Dashboard({ navigate }: { navigate: (id: PageId) => void }) {
+function Dashboard({ navigate, role }: { navigate: (id: PageId) => void; role: Role }) {
   const today = useToday();
-  return <><PageHeader title="Welcome back, Student User" subtitle="Here’s what’s happening with your meals and campus services today." eyebrow={today || "Today"} />
-    <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Today's Meals" value="3" icon={Utensils} note="2 opted in" /><Stat label="Attendance" value="87%" icon={CheckCircle2} tone="success" note="26 meals this month" /><Stat label="Pending Bill" value="₹1,850" icon={WalletCards} tone="warning" note="Due 30 September" /><Stat label="Waste Saved" value="18%" icon={Leaf} tone="secondary" note="Compared with baseline" /></div>
+  const [optedToday, setOptedToday] = useState(3);
+  useEffect(() => {
+    const rec = loadAttendance()[dateKey(new Date())] ?? { Breakfast: true, Lunch: true, Dinner: true };
+    setOptedToday(MEALS.filter(m => rec[m.name]).length);
+  }, []);
+  return <><PageHeader title={`Welcome back, ${role === "owner" ? "Mess Owner" : "Student User"}`} subtitle="Here’s what’s happening with your meals and campus services today." eyebrow={today || "Today"} />
+    <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Today's Meals" value={`${optedToday}/3`} icon={Utensils} note={`${optedToday} of 3 meals opted in`} /><Stat label="Attendance" value="87%" icon={CheckCircle2} tone="success" note="26 meals this month" /><Stat label="Pending Bill" value="₹1,850" icon={WalletCards} tone="warning" note="Due 30 September" /><Stat label="Waste Saved" value="18%" icon={Leaf} tone="secondary" note="Compared with baseline" /></div>
     <div className="grid gap-6 xl:grid-cols-[1.2fr_.8fr]"><Card><SectionTitle action={<Button variant="outline" size="sm" onClick={() => navigate("menu")}>View menu <ChevronRight size={14} /></Button>}>Today’s meals</SectionTitle><div>{[["Breakfast","8:00 AM – 10:00 AM",true],["Lunch","12:30 PM – 2:30 PM",true],["Dinner","7:30 PM – 9:30 PM",false]].map(([name,time,on]) => <div key={String(name)} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b py-4 last:border-0"><div className="min-w-0"><p className="font-semibold">{name}</p><p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground"><Clock3 size={13} />{time}</p></div><Status type={on ? "success" : "danger"}>{on ? "Opted In" : "Opted Out"}</Status></div>)}</div></Card>
       <Card><SectionTitle>Food demand</SectionTitle><div className="rounded-md bg-info-soft p-5"><p className="text-sm font-medium text-muted-foreground">Today’s expected attendance</p><p className="mt-2 font-display text-3xl font-extrabold">142 <span className="text-base font-semibold text-muted-foreground">students</span></p><div className="my-5"><Progress value={78} /></div><div className="flex justify-between text-xs"><span className="text-muted-foreground">Prediction confidence</span><strong>91%</strong></div></div></Card></div>
     <Card className="mt-6"><SectionTitle>Quick actions</SectionTitle><div className="flex flex-wrap gap-3"><Button onClick={() => navigate("attendance")}><CheckCircle2 size={17} />Mark meal attendance</Button><Button variant="success" onClick={() => navigate("payments")}><CreditCard size={17} />Pay mess bill</Button><Button variant="outline" onClick={() => navigate("discover")}><Search size={17} />Find nearby services</Button></div></Card></>;
@@ -165,9 +169,8 @@ function Dashboard({ navigate }: { navigate: (id: PageId) => void }) {
 
 type Service = { img: string; name: string; rating: string; stars: string; distance: string; price: string; type: string; address: string; phone: string; timings: string; about: string; features: string[] };
 const services: Service[] = [
-  { img: messShree, name: "Shree Student Mess", rating: "4.7", stars: "★★★★★", distance: "0.8 km away", price: "₹2,500 / month", type: "Mess", address: "Near Gate 2, College Road", phone: "+91 98765 43210", timings: "8 AM – 10 AM · 12:30 – 2:30 PM · 7:30 – 9:30 PM", about: "Home-style vegetarian thalis with unlimited roti and rice. Popular with first-year students.", features: ["Pure veg", "Unlimited thali", "Sunday special", "RO water"] },
-  { img: messCampus, name: "Campus Food Point", rating: "4.4", stars: "★★★★☆", distance: "1.2 km away", price: "₹2,200 / month", type: "Mess", address: "Opposite Central Library", phone: "+91 91234 56780", timings: "7:30 AM – 10 PM", about: "Budget-friendly mess serving North and South Indian meals with a rotating weekly menu.", features: ["Veg & non-veg", "Weekly menu", "Tiffin service", "UPI accepted"] },
-  { img: roomGreen, name: "Green Hostel Rooms", rating: "4.5", stars: "★★★★☆", distance: "1.5 km away", price: "₹5,500 / month", type: "Room", address: "Green Park Colony, Lane 4", phone: "+91 99887 76655", timings: "Visits 10 AM – 7 PM", about: "Furnished twin-sharing rooms with study desks, Wi-Fi, and daily housekeeping.", features: ["Twin sharing", "Wi-Fi", "24×7 security", "Laundry"] },
+  { img: messShree, name: "Didi ki Rasoi", rating: "4.5", stars: "★★★★☆", distance: "0.6 km away", price: "₹3,200 / month", type: "Mess", address: "Morar, Gwalior, Madhya Pradesh", phone: "+91 94251 38472", timings: "Lunch 12:00 – 2:30 PM · Dinner 7:00 – 10:00 PM", about: "Homely ghar-jaisa khana cooked fresh daily — dal, sabzi, roti and rice with a special Sunday thali.", features: ["Pure veg", "Home-style cooking", "Sunday special", "UPI accepted"] },
+  { img: messCampus, name: "Bawarchi", rating: "4.0", stars: "★★★★☆", distance: "1.1 km away", price: "₹2,800 / month", type: "Mess", address: "Bank Colony, Morar, Gwalior, Madhya Pradesh 474005", phone: "+91 98930 45621", timings: "Lunch 12:00 – 2:30 PM · Dinner 7:00 – 10:00 PM", about: "Budget-friendly mess with a rotating weekly menu of North Indian meals, popular with students in Bank Colony.", features: ["Veg & non-veg", "Weekly menu", "Tiffin service", "Evening snacks"] },
 ];
 function Discover({ notify, query }: { notify: (s: string) => void; query: string }) {
   const [filter, setFilter] = useState("All");
@@ -185,22 +188,46 @@ const weeklyMenus: { theme: string; days: [string, string, string, string][] }[]
 ];
 function weekStart(offset: number) { const d = new Date(); const day = (d.getDay() + 6) % 7; d.setHours(0,0,0,0); d.setDate(d.getDate() - day + offset * 7); return d; }
 function weekIndex(d: Date) { return Math.floor(d.getTime() / (7 * 864e5)) % 4; }
-function MealMenu() {
+type WeekMenu = { theme: string; days: [string, string, string, string][] };
+function loadMenus(): WeekMenu[] {
+  try { const s = localStorage.getItem("studenthub-menu"); if (s) return JSON.parse(s) as WeekMenu[]; } catch { /* ignore */ }
+  return weeklyMenus;
+}
+function MealMenu({ role, notify }: { role: Role; notify: (s: string) => void }) {
   const [offset, setOffset] = useState(0);
   const [todayIdx, setTodayIdx] = useState(-1);
+  const [menus, setMenus] = useState<WeekMenu[]>(loadMenus);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<WeekMenu | null>(null);
   useEffect(() => { setTodayIdx((new Date().getDay() + 6) % 7); }, []);
   const start = weekStart(offset); const end = new Date(start); end.setDate(start.getDate() + 6);
   const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-  const wk = weeklyMenus[((weekIndex(start) % 4) + 4) % 4]!;
+  const wkIdx = ((weekIndex(start) % 4) + 4) % 4;
+  const wk = editing && draft ? draft : menus[wkIdx]!;
   const label = offset === 0 ? "This week" : offset === 1 ? "Next week" : offset === -1 ? "Last week" : `${offset > 0 ? "+" : ""}${offset} weeks`;
-  return <><PageHeader title="Weekly Meal Menu" subtitle="A 4-week rotating menu from Shree Student Mess — balanced, varied and planned ahead." eyebrow={`${fmt(start)} – ${fmt(end)}`} />
+  const startEdit = () => { setDraft(JSON.parse(JSON.stringify(menus[wkIdx])) as WeekMenu); setEditing(true); };
+  const saveEdit = () => {
+    if (!draft) return;
+    const next = menus.map((m, i) => (i === wkIdx ? draft : m));
+    setMenus(next); try { localStorage.setItem("studenthub-menu", JSON.stringify(next)); } catch { /* ignore */ }
+    setEditing(false); setDraft(null); notify("Menu updated — students will see the new menu");
+  };
+  const cancelEdit = () => { setEditing(false); setDraft(null); };
+  const setDish = (day: number, slot: number, value: string) => setDraft(d => { if (!d) return d; const days = d.days.map((r, i) => (i === day ? (r.map((v, j) => (j === slot ? value : v)) as [string, string, string, string]) : r)); return { ...d, days }; });
+  const menuCell = (i: number, slot: number, value: string) => editing
+    ? <td className={td}><input className="h-10 w-full min-w-40 rounded-md border bg-background px-2 text-sm outline-none focus:ring-2 focus:ring-ring" value={value} onChange={e => setDish(i, slot, e.target.value)} aria-label={`${DAYS[i]} ${["Breakfast","Lunch","Dinner","Snacks"][slot]}`} /></td>
+    : <td className={td}>{value}</td>;
+  return <><PageHeader title="Weekly Meal Menu" subtitle={role === "owner" ? "Your 4-week rotating menu — edit any week and students see it instantly." : "A 4-week rotating menu from Shree Student Mess — balanced, varied and planned ahead."} eyebrow={`${fmt(start)} – ${fmt(end)}`} />
   <div className="mb-5 flex flex-wrap items-center gap-2">
     <Button variant="outline" size="sm" onClick={() => setOffset(o => o - 1)} aria-label="Previous week"><ChevronRight size={14} className="rotate-180" />Previous</Button>
     <Button variant={offset === 0 ? "default" : "outline"} size="sm" onClick={() => setOffset(0)}>This week</Button>
     <Button variant="outline" size="sm" onClick={() => setOffset(o => o + 1)} aria-label="Next week">Next<ChevronRight size={14} /></Button>
     <span className="ml-auto flex items-center gap-2 text-sm text-muted-foreground"><CalendarDays size={15} />{label} · <strong className="text-foreground">{wk.theme}</strong></span>
+    {role === "owner" && (editing
+      ? <div className="flex gap-2"><Button variant="outline" size="sm" onClick={cancelEdit}>Cancel</Button><Button size="sm" onClick={saveEdit}><Save size={14} />Save menu</Button></div>
+      : <Button variant="outline" size="sm" onClick={startEdit}><Pencil size={14} />Edit this week</Button>)}
   </div>
-  <Card className="p-0"><TableWrap><thead><tr>{["Day","Breakfast","Lunch","Snacks","Dinner"].map(h => <th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{wk.days.map((d, i) => { const isToday = offset === 0 && i === todayIdx; const date = new Date(start); date.setDate(start.getDate() + i); return <tr key={DAYS[i]} className={cn(isToday && "bg-info-soft/60")}><td className={cn(td, "font-bold")}>{DAYS[i]}<span className="block text-xs font-normal text-muted-foreground">{fmt(date)}</span>{isToday && <span className="text-xs font-semibold text-primary">Today</span>}</td><td className={td}>{d[0]}</td><td className={td}>{d[1]}</td><td className={td}>{d[3]}</td><td className={td}>{d[2]}</td></tr>; })}</tbody></TableWrap></Card>
+  <Card className="p-0"><TableWrap><thead><tr>{["Day","Breakfast","Lunch","Snacks","Dinner"].map(h => <th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{wk.days.map((d, i) => { const isToday = offset === 0 && i === todayIdx; const date = new Date(start); date.setDate(start.getDate() + i); return <tr key={DAYS[i]} className={cn(isToday && "bg-info-soft/60")}><td className={cn(td, "font-bold")}>{DAYS[i]}<span className="block text-xs font-normal text-muted-foreground">{fmt(date)}</span>{isToday && <span className="text-xs font-semibold text-primary">Today</span>}</td>{menuCell(i, 0, d[0])}{menuCell(i, 1, d[1])}{menuCell(i, 3, d[3])}{menuCell(i, 2, d[2])}</tr>; })}</tbody></TableWrap></Card>
   <p className="mt-3 text-xs text-muted-foreground">Timings: Breakfast 8–10 AM · Lunch 12:30–2:30 PM · Snacks 5–6 PM · Dinner 7:30–9:30 PM. Sunday lunch is a special thali.</p></>;
 }
 

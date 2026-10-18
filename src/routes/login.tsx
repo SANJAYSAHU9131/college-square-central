@@ -44,6 +44,11 @@ function GoogleIcon({ size = 18 }: { size?: number }) {
   );
 }
 
+const accounts: Record<Role, { email: string; phone: string }> = {
+  owner: { email: "dumbledoreharry2001@gmail.com", phone: "9876543210" },
+  user: { email: "student@gmail.com", phone: "9123456780" },
+};
+
 function LoginPage() {
   const navigate = useNavigate();
   const [role, setRole] = useState<Role>("user");
@@ -59,15 +64,26 @@ function LoginPage() {
   const done = () => { localStorage.setItem("studenthub-role", role); navigate({ to: "/" }); };
   const roleLabel = role === "owner" ? "Mess Owner" : "User";
 
-  const googleSignIn = () => done();
+  const googleSignIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid Gmail address."); return; }
+    if (email.trim().toLowerCase() !== accounts[role].email) { setError(`Login failed — this Gmail is not registered as a ${roleLabel} account.`); return; }
+    done();
+  };
 
   const issueCode = () => { setCode(String(Math.floor(100000 + Math.random() * 900000))); setOtp(["", "", "", "", "", ""]); setOtpSent(true); setError(""); };
   const resetOtp = () => { setOtpSent(false); setCode(""); setOtp(["", "", "", "", "", ""]); setError(""); };
 
   const sendOtp = (e: React.FormEvent) => {
     e.preventDefault();
-    if (method === "phone" && !/^[6-9]\d{9}$/.test(phone.replace(/\D/g, ""))) { setError("Please enter a valid 10-digit mobile number."); return; }
-    if (method === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid email address."); return; }
+    if (method === "phone") {
+      if (!/^[6-9]\d{9}$/.test(phone.replace(/\D/g, ""))) { setError("Please enter a valid 10-digit mobile number."); return; }
+      if (phone !== accounts[role].phone) { setError(`Login failed — this mobile number is not registered as a ${roleLabel} account.`); return; }
+    }
+    if (method === "email") {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError("Please enter a valid email address."); return; }
+      if (email.trim().toLowerCase() !== accounts[role].email) { setError(`Login failed — this Gmail is not registered as a ${roleLabel} account.`); return; }
+    }
     issueCode();
   };
 
@@ -165,14 +181,23 @@ function LoginPage() {
           </div>
 
           {method === "google" && (
-            <div className="mt-6 space-y-4">
-              <Button type="button" variant="outline" className="h-11 w-full" onClick={googleSignIn}>
+            <form onSubmit={googleSignIn} className="mt-6 space-y-4">
+              <div>
+                <label htmlFor="gmail" className="mb-1.5 block text-sm font-semibold">Gmail address</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input id="gmail" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                    placeholder={role === "owner" ? "dumbledoreharry2001@gmail.com" : "student@gmail.com"} className={inputClass} />
+                </div>
+              </div>
+              {error && <p role="alert" className="rounded-md bg-destructive-soft px-3 py-2 text-sm font-medium text-destructive">{error}</p>}
+              <Button type="submit" variant="outline" className="h-11 w-full">
                 <GoogleIcon /> Continue with Google as {roleLabel}
               </Button>
               <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                 <ShieldCheck size={14} className="text-secondary" /> Your Google account is used only for sign-in.
               </p>
-            </div>
+            </form>
           )}
 
           {method !== "google" && !otpSent && (
