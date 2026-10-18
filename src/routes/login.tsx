@@ -181,14 +181,23 @@ function LoginPage() {
           </div>
 
           {method === "google" && (
-            <div className="mt-6 space-y-4">
-              <Button type="button" variant="outline" className="h-11 w-full" onClick={googleSignIn}>
+            <form onSubmit={googleSignIn} className="mt-6 space-y-4">
+              <div>
+                <label htmlFor="gmail" className="mb-1.5 block text-sm font-semibold">Gmail address</label>
+                <div className="relative">
+                  <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <input id="gmail" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                    placeholder={role === "owner" ? "dumbledoreharry2001@gmail.com" : "student@gmail.com"} className={inputClass} />
+                </div>
+              </div>
+              {error && <p role="alert" className="rounded-md bg-destructive-soft px-3 py-2 text-sm font-medium text-destructive">{error}</p>}
+              <Button type="submit" variant="outline" className="h-11 w-full">
                 <GoogleIcon /> Continue with Google as {roleLabel}
               </Button>
               <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
                 <ShieldCheck size={14} className="text-secondary" /> Your Google account is used only for sign-in.
               </p>
-            </div>
+            </form>
           )}
 
           {method !== "google" && !otpSent && (
