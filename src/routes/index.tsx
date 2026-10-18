@@ -124,7 +124,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "profile": return role === "owner" ? <OwnerProfile notify={notify} /> : <Profile notify={notify} />;
     case "jankalyan": return <Jankalyan role={role} notify={notify} />;
     case "nearby": return <Nearby notify={notify} query={query} />;
-    default: return <Dashboard navigate={navigate} />;
+    default: return <Dashboard navigate={navigate} role={role} />;
   }
 }
 
@@ -188,22 +188,46 @@ const weeklyMenus: { theme: string; days: [string, string, string, string][] }[]
 ];
 function weekStart(offset: number) { const d = new Date(); const day = (d.getDay() + 6) % 7; d.setHours(0,0,0,0); d.setDate(d.getDate() - day + offset * 7); return d; }
 function weekIndex(d: Date) { return Math.floor(d.getTime() / (7 * 864e5)) % 4; }
-function MealMenu() {
+type WeekMenu = { theme: string; days: [string, string, string, string][] };
+function loadMenus(): WeekMenu[] {
+  try { const s = localStorage.getItem("studenthub-menu"); if (s) return JSON.parse(s) as WeekMenu[]; } catch { /* ignore */ }
+  return weeklyMenus;
+}
+function MealMenu({ role, notify }: { role: Role; notify: (s: string) => void }) {
   const [offset, setOffset] = useState(0);
   const [todayIdx, setTodayIdx] = useState(-1);
+  const [menus, setMenus] = useState<WeekMenu[]>(loadMenus);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<WeekMenu | null>(null);
   useEffect(() => { setTodayIdx((new Date().getDay() + 6) % 7); }, []);
   const start = weekStart(offset); const end = new Date(start); end.setDate(start.getDate() + 6);
   const fmt = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-  const wk = weeklyMenus[((weekIndex(start) % 4) + 4) % 4]!;
+  const wkIdx = ((weekIndex(start) % 4) + 4) % 4;
+  const wk = editing && draft ? draft : menus[wkIdx]!;
   const label = offset === 0 ? "This week" : offset === 1 ? "Next week" : offset === -1 ? "Last week" : `${offset > 0 ? "+" : ""}${offset} weeks`;
-  return <><PageHeader title="Weekly Meal Menu" subtitle="A 4-week rotating menu from Shree Student Mess — balanced, varied and planned ahead." eyebrow={`${fmt(start)} – ${fmt(end)}`} />
+  const startEdit = () => { setDraft(JSON.parse(JSON.stringify(menus[wkIdx])) as WeekMenu); setEditing(true); };
+  const saveEdit = () => {
+    if (!draft) return;
+    const next = menus.map((m, i) => (i === wkIdx ? draft : m));
+    setMenus(next); try { localStorage.setItem("studenthub-menu", JSON.stringify(next)); } catch { /* ignore */ }
+    setEditing(false); setDraft(null); notify("Menu updated — students will see the new menu");
+  };
+  const cancelEdit = () => { setEditing(false); setDraft(null); };
+  const setDish = (day: number, slot: number, value: string) => setDraft(d => { if (!d) return d; const days = d.days.map((r, i) => (i === day ? (r.map((v, j) => (j === slot ? value : v)) as [string, string, string, string]) : r)); return { ...d, days }; });
+  const menuCell = (i: number, slot: number, value: string) => editing
+    ? <td className={td}><input className="h-10 w-full min-w-40 rounded-md border bg-background px-2 text-sm outline-none focus:ring-2 focus:ring-ring" value={value} onChange={e => setDish(i, slot, e.target.value)} aria-label={`${DAYS[i]} ${["Breakfast","Lunch","Dinner","Snacks"][slot]}`} /></td>
+    : <td className={td}>{value}</td>;
+  return <><PageHeader title="Weekly Meal Menu" subtitle={role === "owner" ? "Your 4-week rotating menu — edit any week and students see it instantly." : "A 4-week rotating menu from Shree Student Mess — balanced, varied and planned ahead."} eyebrow={`${fmt(start)} – ${fmt(end)}`} />
   <div className="mb-5 flex flex-wrap items-center gap-2">
     <Button variant="outline" size="sm" onClick={() => setOffset(o => o - 1)} aria-label="Previous week"><ChevronRight size={14} className="rotate-180" />Previous</Button>
     <Button variant={offset === 0 ? "default" : "outline"} size="sm" onClick={() => setOffset(0)}>This week</Button>
     <Button variant="outline" size="sm" onClick={() => setOffset(o => o + 1)} aria-label="Next week">Next<ChevronRight size={14} /></Button>
     <span className="ml-auto flex items-center gap-2 text-sm text-muted-foreground"><CalendarDays size={15} />{label} · <strong className="text-foreground">{wk.theme}</strong></span>
+    {role === "owner" && (editing
+      ? <div className="flex gap-2"><Button variant="outline" size="sm" onClick={cancelEdit}>Cancel</Button><Button size="sm" onClick={saveEdit}><Save size={14} />Save menu</Button></div>
+      : <Button variant="outline" size="sm" onClick={startEdit}><Pencil size={14} />Edit this week</Button>)}
   </div>
-  <Card className="p-0"><TableWrap><thead><tr>{["Day","Breakfast","Lunch","Snacks","Dinner"].map(h => <th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{wk.days.map((d, i) => { const isToday = offset === 0 && i === todayIdx; const date = new Date(start); date.setDate(start.getDate() + i); return <tr key={DAYS[i]} className={cn(isToday && "bg-info-soft/60")}><td className={cn(td, "font-bold")}>{DAYS[i]}<span className="block text-xs font-normal text-muted-foreground">{fmt(date)}</span>{isToday && <span className="text-xs font-semibold text-primary">Today</span>}</td><td className={td}>{d[0]}</td><td className={td}>{d[1]}</td><td className={td}>{d[3]}</td><td className={td}>{d[2]}</td></tr>; })}</tbody></TableWrap></Card>
+  <Card className="p-0"><TableWrap><thead><tr>{["Day","Breakfast","Lunch","Snacks","Dinner"].map(h => <th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{wk.days.map((d, i) => { const isToday = offset === 0 && i === todayIdx; const date = new Date(start); date.setDate(start.getDate() + i); return <tr key={DAYS[i]} className={cn(isToday && "bg-info-soft/60")}><td className={cn(td, "font-bold")}>{DAYS[i]}<span className="block text-xs font-normal text-muted-foreground">{fmt(date)}</span>{isToday && <span className="text-xs font-semibold text-primary">Today</span>}</td>{menuCell(i, 0, d[0])}{menuCell(i, 1, d[1])}{menuCell(i, 3, d[3])}{menuCell(i, 2, d[2])}</tr>; })}</tbody></TableWrap></Card>
   <p className="mt-3 text-xs text-muted-foreground">Timings: Breakfast 8–10 AM · Lunch 12:30–2:30 PM · Snacks 5–6 PM · Dinner 7:30–9:30 PM. Sunday lunch is a special thali.</p></>;
 }
 
