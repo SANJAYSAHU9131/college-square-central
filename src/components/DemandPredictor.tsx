@@ -3,6 +3,7 @@ import { Download, Brain, CalendarDays, CheckCircle2, Plus, RotateCcw, Sparkles,
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AiDemandAdvisor } from "@/components/AiDemandAdvisor";
+import { DiningAnalytics } from "@/components/DiningAnalytics";
 
 type Meal = "Breakfast" | "Lunch" | "Dinner";
 const MEALS: Meal[] = ["Breakfast", "Lunch", "Dinner"];
@@ -15,7 +16,7 @@ const EVT_KEY = "studenthub-demand-events";
 
 const dk = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const addDays = (d: Date, n: number) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
-const parse = (s: string) => { const [y, m, d] = s.split("-").map(Number); return new Date(y!, m! - 1, d!); };
+const parse = (s: string) => { const [y = 1970, m = 1, d = 1] = s.split("-").map(Number); return new Date(y, m - 1, d); };
 const fmt = (s: string) => parse(s).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
 
 // Deterministic sample history (last 42 days) with weekday pattern + noise
@@ -27,7 +28,7 @@ function seed(): Rec[] {
     const d = addDays(today, -i);
     MEALS.forEach((m, j) => {
       const noise = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453; const r = (noise - Math.floor(noise)) * 0.1 - 0.05;
-      const served = Math.round(base[m] * dow[d.getDay()]! * (1 + r));
+      const served = Math.round(base[m] * (dow[d.getDay()] ?? 1) * (1 + r));
       out.push({ date: dk(d), meal: m, served, prepared: Math.round(served * 1.12) });
     });
   }
@@ -40,7 +41,7 @@ function forecast(recs: Rec[], meal: Meal, target: Date, event: Event) {
   if (rows.length === 0) return 0;
   const same = rows.filter((r) => parse(r.date).getDay() === target.getDay()).slice(0, 4);
   const w = [4, 3, 2, 1];
-  const weekday = same.length ? same.reduce((s, r, i) => s + r.served * w[i]!, 0) / same.reduce((s, _, i) => s + w[i]!, 0) : rows[0]!.served;
+  const weekday = same.length ? same.reduce((s, r, i) => s + r.served * (w[i] ?? 1), 0) / same.reduce((s, _, i) => s + (w[i] ?? 1), 0) : (rows[0]?.served ?? 0);
   const last7 = rows.slice(0, 7); const prev7 = rows.slice(7, 14);
   const avg = (a: Rec[]) => a.reduce((s, r) => s + r.served, 0) / Math.max(1, a.length);
   const level = avg(last7);
@@ -82,8 +83,7 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
 
   const recent = useMemo(() => recs.filter((r) => parse(r.date) >= addDays(today, -7)), [recs, today]);
   const wasteNow = recent.length ? (recent.reduce((s, r) => s + (r.prepared - r.served), 0) / recent.reduce((s, r) => s + r.prepared, 0)) * 100 : 0;
-  const tomorrow = plan[1]!; const tomorrowTotal = MEALS.reduce((s, m) => s + tomorrow.per[m], 0);
-  const maxBar = Math.max(1, ...plan.map((p) => p.per[meal]));
+  const tomorrow = plan[1]; const tomorrowTotal = MEALS.reduce((s, m) => s + (tomorrow?.per[m] ?? 0), 0);
   const history14 = recs.filter((r) => r.meal === meal && parse(r.date) >= addDays(today, -14)).sort((a, b) => (a.date < b.date ? -1 : 1));
   const backtest = useMemo(() => Array.from({ length: 7 }, (_, i) => dk(addDays(today, i - 7))).map((date) => {
     const r = recs.find((x) => x.date === date && x.meal === meal);
@@ -109,28 +109,22 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
 
   const card = "rounded-lg border bg-card p-5";
   return (
-    <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          ["Tomorrow's demand", `${tomorrowTotal}`, "meals across 3 slots", Utensils],
-          ["Model accuracy", accuracy === null ? "—" : `${accuracy}%`, "backtest on last 7 days", Brain],
-          ["Current waste", `${wasteNow.toFixed(1)}%`, "prepared vs served, 7 days", TrendingDown],
-          ["Records used", `${recs.length}`, "meal-level entries", CalendarDays],
-        ].map(([l, v, n, I]) => { const Icon = I as typeof Brain; return (
-          <div key={String(l)} className={card}><div className="flex items-center justify-between"><p className="text-sm text-muted-foreground">{String(l)}</p><Icon size={18} className="text-primary" /></div><p className="mt-2 font-display text-3xl font-extrabold">{String(v)}</p><p className="mt-1 text-xs text-muted-foreground">{String(n)}</p></div>
-        ); })}
-      </div>
-
+    <div className="dining-analytics -mx-4 -my-6 space-y-5 px-4 py-6 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div><p className="mb-2 text-[11px] font-semibold uppercase text-primary">StudentHub / Prediction</p><h1 className="font-display text-2xl font-bold">Campus Dining Analytics</h1><p className="mt-2 text-xs text-muted-foreground">Demand forecasting, food waste and dining performance.</p></div>
+        <div className="rounded-md border bg-card px-3 py-2 text-right"><p className="text-[10px] text-muted-foreground">Tomorrow's demand</p><p className="text-lg font-bold text-primary">{tomorrowTotal} <span className="text-xs font-normal text-muted-foreground">meals</span></p></div>
+      </header>
+      <DiningAnalytics records={recs} today={today} predict={(m, d) => forecast(recs, m, d, events[dk(d)] ?? "normal")} />
       <div className={card}>
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-display text-lg font-bold">7-day demand forecast</h2>
-          <div className="flex gap-1 rounded-md bg-muted p-1">{MEALS.map((m) => <button key={m} onClick={() => setMeal(m)} className={cn("rounded px-3 py-1.5 text-sm font-semibold", meal === m ? "bg-card shadow-sm" : "text-muted-foreground")}>{m}</button>)}</div>
+          <div className="flex flex-wrap gap-1 rounded-md bg-muted p-1">{MEALS.map((m) => <Button key={m} size="sm" variant={meal === m ? "default" : "ghost"} aria-pressed={meal === m} onClick={() => setMeal(m)}>{m}</Button>)}</div>
         </div>
         <div className="flex h-48 items-end gap-2">
           {plan.map((p, i) => (
             <div key={p.date} className="flex flex-1 flex-col items-center gap-1">
               <span className="text-xs font-bold">{p.per[meal]}</span>
-              <div className={cn("w-full rounded-t-md", i === 0 ? "bg-primary" : "bg-primary/60")} style={{ height: `${(p.per[meal] / maxBar) * 150}px` }} />
+              <div className={cn("w-full rounded-t-md", i === 0 ? "bg-primary" : "bg-primary/60")} style={{ height: `${(p.per[meal] / Math.max(1, ...plan.map(p => p.per[meal]))) * 150}px` }} />
               <span className="text-[11px] text-muted-foreground">{i === 0 ? "Today" : fmt(p.date).split(",")[0]}</span>
             </div>
           ))}
@@ -141,7 +135,7 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
           <tr><td className="py-1 text-muted-foreground">Actual</td>{backtest.map((b) => <td key={b.date} className="font-bold">{b.actual ?? "—"}</td>)}</tr>
           <tr><td className="py-1 text-muted-foreground">Error</td>{backtest.map((b) => { const e = b.actual ? Math.round(((b.predicted - b.actual) / b.actual) * 100) : null; return <td key={b.date} className={cn("font-semibold", e === null ? "" : Math.abs(e) <= 5 ? "text-success" : "text-warning")}>{e === null ? "—" : `${e > 0 ? "+" : ""}${e}%`}</td>; })}</tr>
         </tbody></table></div>
-        <p className="mt-4 text-xs text-muted-foreground">Last 14 days actual ({meal}): {history14.map((r) => r.served).join(" · ") || "no data"}</p>
+        <p className="mt-4 text-xs text-muted-foreground">Last 14 days actual ({meal}): {history14.map((r) => r.served).join(" · ") || "no data"} · {recs.length} records · 7-day accuracy {accuracy === null ? "—" : `${accuracy}%`}</p>
       </div>
 
       <div className={card}>
