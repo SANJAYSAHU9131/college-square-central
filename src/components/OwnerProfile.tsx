@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Camera, IndianRupee, Lock, LogOut, Pencil, Save, Store, Users, UtensilsCrossed } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Camera, IndianRupee, Pencil, Save, Store, Users, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +25,6 @@ export function OwnerProfile({ notify }: { notify: (s: string) => void }) {
   const [draft, setDraft] = useState<OwnerData>(defaultOwner);
   const [editing, setEditing] = useState(false);
   const [prefs, setPrefs] = useState({ orders: true, payments: true, feedback: true, sms: false });
-  const [pw, setPw] = useState({ cur: "", next: "", confirm: "" });
 
   useEffect(() => {
     try {
@@ -51,12 +49,6 @@ export function OwnerProfile({ notify }: { notify: (s: string) => void }) {
     r.readAsDataURL(f);
   };
   const togglePref = (k: keyof typeof prefs) => { const n = { ...prefs, [k]: !prefs[k] }; setPrefs(n); localStorage.setItem("studenthub-owner-prefs", JSON.stringify(n)); notify("Preference updated"); };
-  const changePw = () => {
-    if (!pw.cur) return notify("Enter your current password");
-    if (pw.next.length < 6) return notify("New password must be at least 6 characters");
-    if (pw.next !== pw.confirm) return notify("Passwords do not match");
-    setPw({ cur: "", next: "", confirm: "" }); notify("Password changed");
-  };
 
   const initials = data.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
   const d = editing ? draft : data;
@@ -66,7 +58,7 @@ export function OwnerProfile({ notify }: { notify: (s: string) => void }) {
     <div className="mb-6">
       <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">— Owner workspace</p>
       <h1 className="font-display text-3xl font-extrabold">Owner Profile</h1>
-      <p className="mt-2 text-muted-foreground">Manage your mess details, payment accounts, preferences and security.</p>
+      <p className="mt-2 text-muted-foreground">Manage your mess details, payment accounts and preferences.</p>
     </div>
     <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className="space-y-6">
@@ -123,18 +115,7 @@ export function OwnerProfile({ notify }: { notify: (s: string) => void }) {
           <h3 className="mb-2 font-display text-base font-bold">Notification settings</h3>
           {([["orders", "New reservations & opt-ins"], ["payments", "Payment received alerts"], ["feedback", "New student feedback"], ["sms", "SMS notifications"]] as const).map(([k, label]) => <div key={k} className="flex items-center justify-between border-b py-3 last:border-0"><span className="text-sm font-medium">{label}</span><button role="switch" aria-checked={prefs[k]} aria-label={label} onClick={() => togglePref(k)} className={cn("relative h-6 w-11 rounded-full transition", prefs[k] ? "bg-primary" : "bg-muted")}><span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all", prefs[k] ? "left-[22px]" : "left-0.5")} /></button></div>)}
         </div>
-        <div className={card}>
-          <h3 className="mb-4 font-display text-base font-bold">Security</h3>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Current password"><input type="password" className={input} value={pw.cur} onChange={e => setPw({ ...pw, cur: e.target.value })} /></Field>
-            <Field label="New password"><input type="password" className={input} value={pw.next} onChange={e => setPw({ ...pw, next: e.target.value })} /></Field>
-            <Field label="Confirm password"><input type="password" className={input} value={pw.confirm} onChange={e => setPw({ ...pw, confirm: e.target.value })} /></Field>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button onClick={changePw}><Lock size={16} />Change password</Button>
-            <Button variant="outline" asChild><Link to="/login" onClick={() => localStorage.removeItem("studenthub-role")}><LogOut size={16} />Log out</Link></Button>
-          </div>
-        </div>
+
       </div>
     </div>
   </>;

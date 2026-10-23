@@ -11,3 +11,4 @@
 
 - Keep dining analytics in a focused browser-safe component using Recharts and scoped semantic CSS tokens; this preserves the shared app theme and existing forecasting tools.
 - Derive demand and waste charts from saved attendance records, and explicitly label demonstration satisfaction and service datasets so they are not mistaken for live operational data.
+- The workspace selector changes only the local prototype view, never backend permissions; preserve the legacy login URL as a redirect to the app.
