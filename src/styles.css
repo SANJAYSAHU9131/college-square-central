@@ -42,6 +42,7 @@
   --color-info-soft: var(--info-soft);
   --color-success-soft: var(--success-soft);
   --color-destructive-soft: var(--destructive-soft);
+  --color-chart-blue: var(--chart-blue);
 }
 
 :root {
@@ -123,6 +124,7 @@
   color-scheme: dark;
 }
 .dining-analytics .recharts-text { fill: var(--muted-foreground); font-size: 10px; }
+.dining-analytics * { border-color: var(--border); }
 .dining-analytics .recharts-cartesian-grid line { stroke: var(--border); opacity: .45; }
 .dining-analytics .recharts-default-tooltip {
   background: var(--card) !important;

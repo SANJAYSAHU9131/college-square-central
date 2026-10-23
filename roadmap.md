@@ -1,8 +1,8 @@
 # StudentHub professionalization roadmap
 
 ## Current request: prediction dashboard reference upgrade
-- [ ] Match uploaded analytics layout with working time and meal filters, charts, and sortable performance table.
-- [ ] Preserve kitchen planning, attendance logging, export, and AI recommendations; verify desktop and narrow layouts.
+- [x] Match uploaded analytics layout with working time and meal filters, charts, and sortable performance table.
+- [x] Preserve kitchen planning, attendance logging, export, and AI recommendations; verify desktop and narrow layouts.
 
 - [ ] 1. Database schema: profiles, user_roles (owner/student), messes (seeded), menu_days (seeded 4-week menu), attendance, feedback — with GRANTs + RLS
 - [ ] 2. Real auth: enable email/password + Google sign-in; rewrite login page (sign-in + sign-up with role choice)
