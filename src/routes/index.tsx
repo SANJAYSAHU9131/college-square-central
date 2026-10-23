@@ -1,12 +1,12 @@
 import { Jankalyan } from "@/components/Jankalyan";
 import { OwnerProfile } from "@/components/OwnerProfile";
 import { DemandPredictor } from "@/components/DemandPredictor";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
-  WalletCards, X, UserRound, Camera, LogOut, Lock, Pencil, Save,
+  WalletCards, X, UserRound, Camera, Pencil, Save,
   MapPin, Phone, Navigation, HandHeart,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -51,9 +51,9 @@ function StudentHub() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toast, setToast] = useState("");
   const [query, setQuery] = useState("");
-  const [role, setRole] = useState<Role>("user");
+  const [role, setRole] = useState<Role>("owner");
   useEffect(() => {
-    if (localStorage.getItem("studenthub-role") === "owner") setRole("owner");
+    if (localStorage.getItem("studenthub-workspace") === "user") setRole("user");
   }, []);
   type Notif = { id: number; title: string; text: string; time: string; read: boolean };
   const userNotifs: Notif[] = [
@@ -102,7 +102,7 @@ function StudentHub() {
       <header className="sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b bg-card/95 px-4 backdrop-blur sm:px-6 lg:h-[72px] lg:px-8">
         <Button variant="outline" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20} /></Button>
         <div className="relative min-w-0 max-w-md"><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Search messes, rooms, stores..." aria-label="Search StudentHub" /></div>
-        <div className="flex shrink-0 items-center gap-3"><div className="relative">{notifOpen && <div className="fixed inset-0 z-30" onClick={() => setNotifOpen(false)} aria-hidden="true" />}<button onClick={() => setNotifOpen(o => !o)} className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications" aria-expanded={notifOpen}><Bell size={18} />{unread > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-card">{unread}</span>}</button>{notifOpen && <div className="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-lg border bg-card shadow-xl" role="dialog" aria-label="Notifications"><div className="flex items-center justify-between border-b px-4 py-3"><p className="font-display text-sm font-bold">Notifications{unread > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{unread} new</span>}</p><button onClick={markAllRead} className="text-xs font-semibold text-primary hover:underline">Mark all read</button></div><ul className="max-h-80 overflow-y-auto">{notifs.map(n => <li key={n.id}><button onClick={() => openNotif(n.id)} className={cn("flex w-full gap-3 px-4 py-3 text-left transition hover:bg-accent", !n.read && "bg-info-soft/50")}><span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.read ? "bg-transparent" : "bg-primary")} /><span className="min-w-0"><span className="block text-sm font-semibold">{n.title}</span><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{n.text}</span><span className="mt-1 block text-[11px] text-muted-foreground">{n.time}</span></span></button></li>)}</ul></div>}</div><Link to="/login" className="hidden h-10 items-center rounded-md bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:inline-flex">Login</Link><div className="hidden text-right sm:block"><p className="text-sm font-semibold">{role === "owner" ? "Mess Owner" : "Student User"}</p><p className="text-xs text-muted-foreground">{role === "owner" ? "Owner" : "Student"}</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{role === "owner" ? "MO" : "SU"}</div></div>
+        <div className="flex shrink-0 items-center gap-3"><div className="relative">{notifOpen && <div className="fixed inset-0 z-30" onClick={() => setNotifOpen(false)} aria-hidden="true" />}<button onClick={() => setNotifOpen(o => !o)} className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications" aria-expanded={notifOpen}><Bell size={18} />{unread > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-card">{unread}</span>}</button>{notifOpen && <div className="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-lg border bg-card shadow-xl" role="dialog" aria-label="Notifications"><div className="flex items-center justify-between border-b px-4 py-3"><p className="font-display text-sm font-bold">Notifications{unread > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{unread} new</span>}</p><button onClick={markAllRead} className="text-xs font-semibold text-primary hover:underline">Mark all read</button></div><ul className="max-h-80 overflow-y-auto">{notifs.map(n => <li key={n.id}><button onClick={() => openNotif(n.id)} className={cn("flex w-full gap-3 px-4 py-3 text-left transition hover:bg-accent", !n.read && "bg-info-soft/50")}><span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.read ? "bg-transparent" : "bg-primary")} /><span className="min-w-0"><span className="block text-sm font-semibold">{n.title}</span><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{n.text}</span><span className="mt-1 block text-[11px] text-muted-foreground">{n.time}</span></span></button></li>)}</ul></div>}</div><select aria-label="Workspace" value={role} onChange={e => { const next = e.target.value === "owner" ? "owner" : "user"; setRole(next); localStorage.setItem("studenthub-workspace", next); setNotifOpen(false); if (next === "user" && (page === "prediction" || page === "admin")) navigate("dashboard"); }} className="h-10 max-w-32 rounded-md border bg-background px-2 text-xs font-semibold"><option value="user">Student</option><option value="owner">Mess Owner</option></select><div className="hidden text-right sm:block"><p className="text-sm font-semibold">{role === "owner" ? "Mess Owner" : "Student User"}</p><p className="text-xs text-muted-foreground">{role === "owner" ? "Owner" : "Student"}</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{role === "owner" ? "MO" : "SU"}</div></div>
       </header>
       <main className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8">
         <div key={page} className="page-enter">{renderPage(role === "user" && (page === "prediction" || page === "admin") ? "dashboard" : page, navigate, notify, query, role)}</div>
@@ -291,7 +291,6 @@ function Profile({ notify }: { notify: (s: string) => void }) {
   const [draft, setDraft] = useState<ProfileData>(defaultProfile);
   const [editing, setEditing] = useState(false);
   const [prefs, setPrefs] = useState({ meal: true, bill: true, menu: false, sms: true });
-  const [pw, setPw] = useState({ cur: "", next: "", confirm: "" });
   useEffect(() => {
     try {
       const saved = localStorage.getItem("studenthub-profile");
@@ -314,17 +313,12 @@ function Profile({ notify }: { notify: (s: string) => void }) {
     r.readAsDataURL(f);
   };
   const togglePref = (k: keyof typeof prefs) => { const n = { ...prefs, [k]: !prefs[k] }; setPrefs(n); localStorage.setItem("studenthub-prefs", JSON.stringify(n)); notify("Preference updated"); };
-  const changePw = () => {
-    if (!pw.cur) return notify("Enter your current password");
-    if (pw.next.length < 6) return notify("New password must be at least 6 characters");
-    if (pw.next !== pw.confirm) return notify("Passwords do not match");
-    setPw({ cur: "", next: "", confirm: "" }); notify("Password changed");
-  };
+
   const initials = data.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
   const d = editing ? draft : data;
   const F = (label: string, k: keyof ProfileData, type = "text") => <Field label={label}><input className={inputCls} type={type} value={d[k]} onChange={set(k)} disabled={!editing} /></Field>;
 
-  return <><PageHeader title="My Profile" subtitle="Manage your personal details, mess plan, preferences and security." eyebrow="Student workspace" />
+  return <><PageHeader title="My Profile" subtitle="Manage your personal details, mess plan and preferences." eyebrow="Student workspace" />
     <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
       <div className="space-y-6">
         <Card className="text-center">
@@ -379,18 +373,7 @@ function Profile({ notify }: { notify: (s: string) => void }) {
           <SectionTitle>Notification settings</SectionTitle>
           {([["meal", "Meal reminders"], ["bill", "Bill due alerts"], ["menu", "Menu change updates"], ["sms", "SMS notifications"]] as const).map(([k, label]) => <div key={k} className="flex items-center justify-between border-b py-3 last:border-0"><span className="text-sm font-medium">{label}</span><button role="switch" aria-checked={prefs[k]} aria-label={label} onClick={() => togglePref(k)} className={cn("relative h-6 w-11 rounded-full transition", prefs[k] ? "bg-primary" : "bg-muted")}><span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all", prefs[k] ? "left-[22px]" : "left-0.5")} /></button></div>)}
         </Card>
-        <Card>
-          <SectionTitle>Security</SectionTitle>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Current password"><input type="password" className={inputCls} value={pw.cur} onChange={e => setPw({ ...pw, cur: e.target.value })} /></Field>
-            <Field label="New password"><input type="password" className={inputCls} value={pw.next} onChange={e => setPw({ ...pw, next: e.target.value })} /></Field>
-            <Field label="Confirm password"><input type="password" className={inputCls} value={pw.confirm} onChange={e => setPw({ ...pw, confirm: e.target.value })} /></Field>
-          </div>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button onClick={changePw}><Lock size={16} />Change password</Button>
-            <Button variant="outline" asChild><Link to="/login" onClick={() => localStorage.removeItem("studenthub-role")}><LogOut size={16} />Log out</Link></Button>
-          </div>
-        </Card>
+
       </div>
     </div></>;
 }
