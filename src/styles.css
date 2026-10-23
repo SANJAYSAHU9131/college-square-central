@@ -93,6 +93,47 @@
   button, input, select, textarea { font: inherit; }
 }
 
+/* Scoped dining workspace: preserve the rest of StudentHub's theme. */
+.dining-analytics {
+  --background: oklch(0.19 0.023 190);
+  --foreground: oklch(0.94 0.012 185);
+  --card: oklch(0.235 0.024 190);
+  --card-foreground: var(--foreground);
+  --muted: oklch(0.28 0.026 190);
+  --muted-foreground: oklch(0.7 0.025 190);
+  --border: oklch(0.35 0.032 190);
+  --input: var(--border);
+  --primary: oklch(0.78 0.14 178);
+  --primary-hover: oklch(0.7 0.14 178);
+  --primary-foreground: oklch(0.19 0.023 190);
+  --ring: var(--primary);
+  --accent: var(--muted);
+  --accent-foreground: var(--foreground);
+  --success: oklch(0.8 0.17 150);
+  --warning: oklch(0.8 0.14 78);
+  --warning-soft: oklch(0.3 0.05 78);
+  --destructive: oklch(0.74 0.15 35);
+  --destructive-soft: oklch(0.3 0.05 35);
+  --chart-blue: oklch(0.73 0.1 248);
+  --chart-violet: oklch(0.65 0.1 310);
+  --chart-neutral: oklch(0.62 0.025 190);
+  --chart-tooltip-shadow: 0 8px 24px color-mix(in oklab, var(--background) 65%, transparent);
+  background: var(--background);
+  color: var(--foreground);
+  color-scheme: dark;
+}
+.dining-analytics .recharts-text { fill: var(--muted-foreground); font-size: 10px; }
+.dining-analytics .recharts-cartesian-grid line { stroke: var(--border); opacity: .45; }
+.dining-analytics .recharts-default-tooltip {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px;
+  box-shadow: var(--chart-tooltip-shadow);
+  color: var(--foreground);
+  font-size: 12px;
+}
+.dining-analytics .recharts-tooltip-label { color: var(--foreground); }
+
 @keyframes page-enter {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
