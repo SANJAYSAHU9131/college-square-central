@@ -117,7 +117,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "discover": return <Discover notify={notify} query={query} />;
     case "menu": return <MealMenu role={role} notify={notify} />;
     case "attendance": return <Attendance notify={notify} />;
-    case "payments": return <Payments notify={notify} />;
+    case "payments": return <Payments role={role} notify={notify} />;
     case "prediction": return <Prediction notify={notify} />;
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
@@ -274,7 +274,7 @@ function Attendance({ notify }: { notify: (s: string) => void }) {
       <div className="space-y-6"><Card><SectionTitle>Today’s meal selection</SectionTitle>{mealRow(today, todayRec, true)}</Card><Card><SectionTitle>Plan tomorrow</SectionTitle>{mealRow(tomorrow, tomorrowRec, false)}</Card></div></div></>;
 }
 
-function Payments({ notify }: { notify: (s: string) => void }) { return <><PageHeader title="Payments & Billing" subtitle="Manage your mess bills and review payment history." eyebrow="Billing overview" /><div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Current Bill" value="₹1,850" icon={CircleDollarSign}/><Stat label="Due Date" value="30 Sep" icon={CalendarDays} tone="warning"/><Stat label="Paid This Year" value="₹18,400" icon={WalletCards} tone="success"/><Stat label="Status" value="Pending" icon={Clock3} tone="warning"/></div><Card className="p-0"><div className="p-5"><SectionTitle action={<Button onClick={() => notify("Payment gateway opened")}><CreditCard size={17}/>Pay ₹1,850</Button>}>Payment history</SectionTitle></div><TableWrap><thead><tr>{["Date","Description","Amount","Status"].map(h=><th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{[["01 Sep 2026","Mess Subscription","₹2,500"],["01 Aug 2026","Mess Subscription","₹2,500"]].map(r=><tr key={r[0]}>{r.map(v=><td className={td} key={v}>{v}</td>)}<td className={td}><Status>Paid</Status></td></tr>)}</tbody></TableWrap></Card></>; }
+function Payments({ role, notify }: { role: Role; notify: (s: string) => void }) { return <PaymentsSection role={role} notify={notify} />; }
 
 function Prediction({ notify }: { notify:(s:string)=>void }) { return <DemandPredictor notify={notify}/>; }
 
