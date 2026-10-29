@@ -1,9 +1,10 @@
 import { Jankalyan } from "@/components/Jankalyan";
 import { OwnerProfile } from "@/components/OwnerProfile";
 import { DemandPredictor } from "@/components/DemandPredictor";
+import { PaymentsSection } from "@/components/PaymentsSection";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
+  Bell, CalendarDays, CheckCircle2, ChevronRight, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, Pencil, Save,
@@ -117,7 +118,7 @@ function renderPage(page: PageId, navigate: (id: PageId) => void, notify: (messa
     case "discover": return <Discover notify={notify} query={query} />;
     case "menu": return <MealMenu role={role} notify={notify} />;
     case "attendance": return <Attendance notify={notify} />;
-    case "payments": return <Payments notify={notify} />;
+    case "payments": return <Payments role={role} notify={notify} />;
     case "prediction": return <Prediction notify={notify} />;
     case "feedback": return <Feedback notify={notify} />;
     case "admin": return <Admin />;
@@ -274,7 +275,7 @@ function Attendance({ notify }: { notify: (s: string) => void }) {
       <div className="space-y-6"><Card><SectionTitle>Today’s meal selection</SectionTitle>{mealRow(today, todayRec, true)}</Card><Card><SectionTitle>Plan tomorrow</SectionTitle>{mealRow(tomorrow, tomorrowRec, false)}</Card></div></div></>;
 }
 
-function Payments({ notify }: { notify: (s: string) => void }) { return <><PageHeader title="Payments & Billing" subtitle="Manage your mess bills and review payment history." eyebrow="Billing overview" /><div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Current Bill" value="₹1,850" icon={CircleDollarSign}/><Stat label="Due Date" value="30 Sep" icon={CalendarDays} tone="warning"/><Stat label="Paid This Year" value="₹18,400" icon={WalletCards} tone="success"/><Stat label="Status" value="Pending" icon={Clock3} tone="warning"/></div><Card className="p-0"><div className="p-5"><SectionTitle action={<Button onClick={() => notify("Payment gateway opened")}><CreditCard size={17}/>Pay ₹1,850</Button>}>Payment history</SectionTitle></div><TableWrap><thead><tr>{["Date","Description","Amount","Status"].map(h=><th className={th} key={h}>{h}</th>)}</tr></thead><tbody>{[["01 Sep 2026","Mess Subscription","₹2,500"],["01 Aug 2026","Mess Subscription","₹2,500"]].map(r=><tr key={r[0]}>{r.map(v=><td className={td} key={v}>{v}</td>)}<td className={td}><Status>Paid</Status></td></tr>)}</tbody></TableWrap></Card></>; }
+function Payments({ role, notify }: { role: Role; notify: (s: string) => void }) { return <PaymentsSection role={role} notify={notify} />; }
 
 function Prediction({ notify }: { notify:(s:string)=>void }) { return <DemandPredictor notify={notify}/>; }
 
@@ -283,7 +284,7 @@ function Field({label,children}:{label:string;children:React.ReactNode}) { retur
 
 function Admin() { const kpis=[["Food Waste Reduction","24%","Increase","Tracking","success"],["Attendance Prediction Accuracy","91%","Minimize Deviation","Good","success"],["Payment Collection Rate","94%","Increase","Tracking","success"],["Complaint Resolution Time","1.8 Days","Decrease","Monitoring","warning"],["Platform Adoption","78%","Increase","Growing","success"]]; return <><PageHeader title="Administrator Dashboard" subtitle="Platform-wide monitoring, analytics, and service health." eyebrow="Admin workspace"/><div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Active Students" value="2,480" icon={Users}/><Stat label="Active Messes" value="18" icon={Store} tone="secondary"/><Stat label="Food Waste Reduction" value="24%" icon={Leaf} tone="success"/><Stat label="Payment Collection" value="94%" icon={ShieldCheck} tone="primary"/></div><Card className="mb-6 p-0"><div className="p-5"><SectionTitle>Platform KPIs</SectionTitle></div><TableWrap><thead><tr>{["KPI","Current Value","Target Direction","Status"].map(h=><th key={h} className={th}>{h}</th>)}</tr></thead><tbody>{kpis.map(r=><tr key={r[0]}>{r.slice(0,3).map(v=><td className={td} key={v}>{v}</td>)}<td className={td}><Status type={r[4] as "success"|"warning"}>{r[3]}</Status></td></tr>)}</tbody></TableWrap></Card><div className="grid gap-6 xl:grid-cols-2"><Card><SectionTitle>Food waste trend</SectionTitle><div className="mb-4"><Progress value={82} tone="success"/></div><p className="flex items-center gap-2 text-sm text-muted-foreground"><TrendingDown size={16} className="text-success"/><strong className="text-success">18% reduction</strong> compared with baseline</p></Card><Card><SectionTitle>Recent notifications</SectionTitle>{[["Menu updated by Shree Student Mess","New","success"],["New vendor awaiting verification","Review","warning"]].map(([a,b,c])=><div key={a} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b py-3 last:border-0"><p className="min-w-0 text-sm">{a}</p><Status type={c as "success"|"warning"}>{b}</Status></div>)}</Card></div></>; }
 type ProfileData = { name: string; roll: string; email: string; phone: string; college: string; course: string; year: string; hostel: string; room: string; diet: string; allergies: string; guardian: string; guardianPhone: string; photo: string };
-const defaultProfile: ProfileData = { name: "Student User", roll: "BTMC25O1083", email: "student@gmail.com", phone: "9876543210", college: "StudentHub Institute of Technology", course: "B.Tech Computer Science", year: "2nd Year", hostel: "Boys Hostel A", room: "A-214", diet: "Vegetarian", allergies: "None", guardian: "Parent Name", guardianPhone: "9123456780", photo: "" };
+const defaultProfile: ProfileData = { name: "Nikhil Gour", roll: "BTMC25O1083", email: "student@gmail.com", phone: "9876543210", college: "StudentHub Institute of Technology", course: "B.Tech Computer Science", year: "2nd Year", hostel: "Boys Hostel A", room: "A-214", diet: "Vegetarian", allergies: "None", guardian: "Parent Name", guardianPhone: "9123456780", photo: "" };
 const inputCls = "h-11 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:bg-muted/50 disabled:text-muted-foreground";
 
 function Profile({ notify }: { notify: (s: string) => void }) {
