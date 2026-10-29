@@ -38,6 +38,14 @@ function monthKey(d: Date) { return `${d.getFullYear()}-${String(d.getMonth() + 
 function monthLabel(d: Date) { return d.toLocaleDateString("en-IN", { month: "long", year: "numeric" }); }
 function fmtINR(n: number) { return `₹${n.toLocaleString("en-IN")}`; }
 
+function loadIdentity(): { name: string; roll: string } {
+  try {
+    const raw = localStorage.getItem("studenthub-profile");
+    if (raw) { const p = JSON.parse(raw) as { name?: string; roll?: string }; return { name: p.name?.trim() || "Nikhil Gour", roll: p.roll?.trim() || "BTMC25O1083" }; }
+  } catch { /* ignore */ }
+  return { name: "Nikhil Gour", roll: "BTMC25O1083" };
+}
+
 function loadReceipts(): Receipt[] {
   try {
     const raw = localStorage.getItem(STORE);
@@ -222,11 +230,13 @@ export function PaymentsSection({ role, notify }: { role: Role; notify: (s: stri
   const period = monthLabel(now);
   const thisMonth = monthKey(now);
   const year = now.getFullYear();
+  const identity = useMemo(loadIdentity, []);
 
-  const paidThisMonth = useMemo(() => receipts.filter(r => monthKey(new Date(r.createdAt)) === thisMonth).reduce((s, r) => s + r.amount, 0), [receipts, thisMonth]);
-  const paidThisYear = useMemo(() => receipts.filter(r => new Date(r.createdAt).getFullYear() === year).reduce((s, r) => s + r.amount, 0), [receipts, year]);
+  const myReceipts = useMemo(() => receipts.filter(r => r.studentId === identity.roll), [receipts, identity.roll]);
+  const paidThisMonth = useMemo(() => myReceipts.filter(r => monthKey(new Date(r.createdAt)) === thisMonth).reduce((s, r) => s + r.amount, 0), [myReceipts, thisMonth]);
+  const paidThisYear = useMemo(() => myReceipts.filter(r => new Date(r.createdAt).getFullYear() === year).reduce((s, r) => s + r.amount, 0), [myReceipts, year]);
   const due = Math.max(0, MESS_FEE - paidThisMonth);
-  const sorted = useMemo(() => [...receipts].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [receipts]);
+  const sorted = useMemo(() => [...(isOwner ? receipts : myReceipts)].sort((a, b) => b.createdAt.localeCompare(a.createdAt)), [receipts, myReceipts, isOwner]);
 
   const issue = (data: Omit<Receipt, "id" | "number" | "createdAt" | "txnId" | "status">) => {
     const list = loadReceipts();
@@ -237,7 +247,7 @@ export function PaymentsSection({ role, notify }: { role: Role; notify: (s: stri
   };
 
   const studentPay = (method: Method, amt: number) => {
-    issue({ studentName: "Nikhil Gour", studentId: "BTMC25O1083", messName: MESS_NAME, amount: amt, period, method });
+    issue({ studentName: identity.name, studentId: identity.roll, messName: MESS_NAME, amount: amt, period, method });
     setPayOpen(false);
     notify("Payment successful — receipt issued to you and the mess owner");
   };
