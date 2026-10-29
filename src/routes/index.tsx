@@ -1,9 +1,10 @@
 import { Jankalyan } from "@/components/Jankalyan";
 import { OwnerProfile } from "@/components/OwnerProfile";
 import { DemandPredictor } from "@/components/DemandPredictor";
+import { PaymentsSection } from "@/components/PaymentsSection";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  Bell, CalendarDays, CheckCircle2, ChevronRight, CircleDollarSign, Clock3,
+  Bell, CalendarDays, CheckCircle2, ChevronRight, Clock3,
   CreditCard, Gauge, Home, LayoutDashboard, Leaf, Menu, MessageSquareText,
   Search, Settings, ShieldCheck, Sparkles, Store, TrendingDown, Users, Utensils,
   WalletCards, X, UserRound, Camera, Pencil, Save,
