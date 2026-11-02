@@ -1,6 +1,6 @@
-# StudentHub Connect
+# Messtoo
 
-Create a complete responsive website called StudentHub using the following HTML/CSS/JavaScript code. Preserve the existing UI, navigation, dashboard, attendance, payments, food-waste prediction, feedback, discovery, and admin sections. Make the design modern, professional, and suitable for a college software project. Do not remove any existing functionality. Convert the prototype into a clean production-style web interface.
+Create a complete responsive website called Messtoo using the following HTML/CSS/JavaScript code. Preserve the existing UI, navigation, dashboard, attendance, payments, food-waste prediction, feedback, discovery, and admin sections. Make the design modern, professional, and suitable for a college software project. Do not remove any existing functionality. Convert the prototype into a clean production-style web interface.
 
 This project was built with [Lovable](https://lovable.dev).
 

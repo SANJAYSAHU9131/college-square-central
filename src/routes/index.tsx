@@ -22,17 +22,18 @@ import nearbyPrint from "@/assets/nearby-print.jpg";
 import nearbyEservices from "@/assets/nearby-eservices.jpg";
 import nearbyGym1 from "@/assets/nearby-gym-1.jpg";
 import nearbyGym2 from "@/assets/nearby-gym-2.jpg";
+import messtooLogo from "@/assets/messtoo-logo.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
-    { title: "StudentHub | Smart Mess Management" },
-    { name: "description", content: "Manage college meals, attendance, payments, food-waste predictions, feedback, and campus services in StudentHub." },
-    { property: "og:title", content: "StudentHub | Smart Mess Management" },
+    { title: "Messtoo | Smart Mess Management" },
+    { name: "description", content: "Manage college meals, attendance, payments, food-waste predictions, feedback, and campus services in Messtoo." },
+    { property: "og:title", content: "Messtoo | Smart Mess Management" },
     { property: "og:description", content: "A complete smart mess and student services dashboard." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
   ]}),
-  component: StudentHub,
+  component: Messtoo,
 });
 
 type PageId = "dashboard" | "discover" | "menu" | "attendance" | "payments" | "prediction" | "feedback" | "admin" | "profile" | "nearby" | "jankalyan";
@@ -47,7 +48,7 @@ const navItems = [
 
 type Role = "user" | "owner";
 
-function StudentHub() {
+function Messtoo() {
   const [page, setPage] = useState<PageId>("dashboard");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [toast, setToast] = useState("");
@@ -81,9 +82,8 @@ function StudentHub() {
     {mobileOpen && <div className="fixed inset-0 z-30 bg-foreground/35 lg:hidden" onClick={() => setMobileOpen(false)} aria-hidden="true" />}
     <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-sidebar px-4 py-6 text-sidebar-foreground transition-transform lg:translate-x-0", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
       <div className="mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-center px-2">
-        <button onClick={() => navigate("dashboard")} className="flex min-w-0 items-center gap-3 text-left" aria-label="StudentHub dashboard">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground"><Utensils size={20} /></span>
-          <span className="font-display text-xl font-extrabold">Student<span className="text-secondary">Hub</span></span>
+        <button onClick={() => navigate("dashboard")} className="flex min-w-0 items-center gap-3 text-left" aria-label="Messtoo dashboard">
+          <img src={messtooLogo.url} alt="Messtoo" width={139} height={44} className="h-11 w-auto rounded-md" loading="lazy" />
         </button>
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={20} /></Button>
       </div>
@@ -102,7 +102,7 @@ function StudentHub() {
     <div className="min-h-screen lg:pl-64">
       <header className="sticky top-0 z-20 grid h-16 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b bg-card/95 px-4 backdrop-blur sm:px-6 lg:h-[72px] lg:px-8">
         <Button variant="outline" size="icon" className="lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><Menu size={20} /></Button>
-        <div className="relative min-w-0 max-w-md"><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Search messes, rooms, stores..." aria-label="Search StudentHub" /></div>
+        <div className="relative min-w-0 max-w-md"><Search size={17} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} className="h-10 w-full rounded-md border bg-background pl-10 pr-3 text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/15" placeholder="Search messes, rooms, stores..." aria-label="Search Messtoo" /></div>
         <div className="flex shrink-0 items-center gap-3"><div className="relative">{notifOpen && <div className="fixed inset-0 z-30" onClick={() => setNotifOpen(false)} aria-hidden="true" />}<button onClick={() => setNotifOpen(o => !o)} className="relative hidden h-10 w-10 place-items-center rounded-md border bg-card text-muted-foreground hover:bg-accent sm:grid" aria-label="Notifications" aria-expanded={notifOpen}><Bell size={18} />{unread > 0 && <span className="absolute -right-1 -top-1 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-card">{unread}</span>}</button>{notifOpen && <div className="absolute right-0 z-40 mt-2 w-80 overflow-hidden rounded-lg border bg-card shadow-xl" role="dialog" aria-label="Notifications"><div className="flex items-center justify-between border-b px-4 py-3"><p className="font-display text-sm font-bold">Notifications{unread > 0 && <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">{unread} new</span>}</p><button onClick={markAllRead} className="text-xs font-semibold text-primary hover:underline">Mark all read</button></div><ul className="max-h-80 overflow-y-auto">{notifs.map(n => <li key={n.id}><button onClick={() => openNotif(n.id)} className={cn("flex w-full gap-3 px-4 py-3 text-left transition hover:bg-accent", !n.read && "bg-info-soft/50")}><span className={cn("mt-1.5 h-2 w-2 shrink-0 rounded-full", n.read ? "bg-transparent" : "bg-primary")} /><span className="min-w-0"><span className="block text-sm font-semibold">{n.title}</span><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{n.text}</span><span className="mt-1 block text-[11px] text-muted-foreground">{n.time}</span></span></button></li>)}</ul></div>}</div><select aria-label="Workspace" value={role} onChange={e => { const next = e.target.value === "owner" ? "owner" : "user"; setRole(next); localStorage.setItem("studenthub-workspace", next); setNotifOpen(false); if (next === "user" && (page === "prediction" || page === "admin")) navigate("dashboard"); }} className="h-10 max-w-32 rounded-md border bg-background px-2 text-xs font-semibold"><option value="user">Student</option><option value="owner">Mess Owner</option></select><div className="hidden text-right sm:block"><p className="text-sm font-semibold">{role === "owner" ? "Mess Owner" : "Student User"}</p><p className="text-xs text-muted-foreground">{role === "owner" ? "Owner" : "Student"}</p></div><div className="grid h-10 w-10 place-items-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{role === "owner" ? "MO" : "SU"}</div></div>
       </header>
       <main className="mx-auto max-w-[1500px] p-4 sm:p-6 lg:p-8">
@@ -284,7 +284,7 @@ function Field({label,children}:{label:string;children:React.ReactNode}) { retur
 
 function Admin() { const kpis=[["Food Waste Reduction","24%","Increase","Tracking","success"],["Attendance Prediction Accuracy","91%","Minimize Deviation","Good","success"],["Payment Collection Rate","94%","Increase","Tracking","success"],["Complaint Resolution Time","1.8 Days","Decrease","Monitoring","warning"],["Platform Adoption","78%","Increase","Growing","success"]]; return <><PageHeader title="Administrator Dashboard" subtitle="Platform-wide monitoring, analytics, and service health." eyebrow="Admin workspace"/><div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Stat label="Active Students" value="2,480" icon={Users}/><Stat label="Active Messes" value="18" icon={Store} tone="secondary"/><Stat label="Food Waste Reduction" value="24%" icon={Leaf} tone="success"/><Stat label="Payment Collection" value="94%" icon={ShieldCheck} tone="primary"/></div><Card className="mb-6 p-0"><div className="p-5"><SectionTitle>Platform KPIs</SectionTitle></div><TableWrap><thead><tr>{["KPI","Current Value","Target Direction","Status"].map(h=><th key={h} className={th}>{h}</th>)}</tr></thead><tbody>{kpis.map(r=><tr key={r[0]}>{r.slice(0,3).map(v=><td className={td} key={v}>{v}</td>)}<td className={td}><Status type={r[4] as "success"|"warning"}>{r[3]}</Status></td></tr>)}</tbody></TableWrap></Card><div className="grid gap-6 xl:grid-cols-2"><Card><SectionTitle>Food waste trend</SectionTitle><div className="mb-4"><Progress value={82} tone="success"/></div><p className="flex items-center gap-2 text-sm text-muted-foreground"><TrendingDown size={16} className="text-success"/><strong className="text-success">18% reduction</strong> compared with baseline</p></Card><Card><SectionTitle>Recent notifications</SectionTitle>{[["Menu updated by Shree Student Mess","New","success"],["New vendor awaiting verification","Review","warning"]].map(([a,b,c])=><div key={a} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b py-3 last:border-0"><p className="min-w-0 text-sm">{a}</p><Status type={c as "success"|"warning"}>{b}</Status></div>)}</Card></div></>; }
 type ProfileData = { name: string; roll: string; email: string; phone: string; college: string; course: string; year: string; hostel: string; room: string; diet: string; allergies: string; guardian: string; guardianPhone: string; photo: string };
-const defaultProfile: ProfileData = { name: "Nikhil Gour", roll: "BTMC25O1083", email: "student@gmail.com", phone: "9876543210", college: "StudentHub Institute of Technology", course: "B.Tech Computer Science", year: "2nd Year", hostel: "Boys Hostel A", room: "A-214", diet: "Vegetarian", allergies: "None", guardian: "Parent Name", guardianPhone: "9123456780", photo: "" };
+const defaultProfile: ProfileData = { name: "Nikhil Gour", roll: "BTMC25O1083", email: "student@gmail.com", phone: "9876543210", college: "Messtoo Institute of Technology", course: "B.Tech Computer Science", year: "2nd Year", hostel: "Boys Hostel A", room: "A-214", diet: "Vegetarian", allergies: "None", guardian: "Parent Name", guardianPhone: "9123456780", photo: "" };
 const inputCls = "h-11 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:bg-muted/50 disabled:text-muted-foreground";
 
 function Profile({ notify }: { notify: (s: string) => void }) {
