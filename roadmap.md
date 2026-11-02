@@ -9,3 +9,7 @@
 - [ ] 4. Wire data to the database: Discover messes, Meal Menu (owner edits persist for everyone), Attendance, Feedback
 - [ ] 5. Visual polish + mobile experience pass
 - [ ] 6. Verify end-to-end (typecheck, build, Playwright)
+
+## Current request: rename to Messtoo + add logo
+- [ ] Rename all StudentHub references to Messtoo (UI, page titles, receipts, README)
+- [ ] Add original logo to sidebar and browser tab favicon without altering the artwork
