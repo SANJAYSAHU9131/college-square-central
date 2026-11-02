@@ -111,7 +111,7 @@ export function DemandPredictor({ notify }: { notify: (s: string) => void }) {
   return (
     <div className="dining-analytics -mx-4 -my-6 space-y-5 px-4 py-6 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div><p className="mb-2 text-[11px] font-semibold uppercase text-primary">StudentHub / Prediction</p><h1 className="font-display text-2xl font-bold">Campus Dining Analytics</h1><p className="mt-2 text-xs text-muted-foreground">Demand forecasting, food waste and dining performance.</p></div>
+        <div><p className="mb-2 text-[11px] font-semibold uppercase text-primary">Messtoo / Prediction</p><h1 className="font-display text-2xl font-bold">Campus Dining Analytics</h1><p className="mt-2 text-xs text-muted-foreground">Demand forecasting, food waste and dining performance.</p></div>
         <div className="rounded-md border bg-card px-3 py-2 text-right"><p className="text-[10px] text-muted-foreground">Tomorrow's demand</p><p className="text-lg font-bold text-primary">{tomorrowTotal} <span className="text-xs font-normal text-muted-foreground">meals</span></p></div>
       </header>
       <DiningAnalytics records={recs} today={today} predict={(m, d) => forecast(recs, m, d, events[dk(d)] ?? "normal")} />

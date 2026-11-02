@@ -94,7 +94,7 @@
   button, input, select, textarea { font: inherit; }
 }
 
-/* Scoped dining workspace: preserve the rest of StudentHub's theme. */
+/* Scoped dining workspace: preserve the rest of Messtoo's theme. */
 .dining-analytics {
   --background: oklch(0.19 0.023 190);
   --foreground: oklch(0.94 0.012 185);

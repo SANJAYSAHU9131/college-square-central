@@ -99,7 +99,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;back
 <div style="text-align:right"><div class="tag">PAID</div><div style="margin-top:10px;font-size:13px"><b>Receipt ${r.number}</b></div><div style="font-size:12px;color:#6b7280">${dt.toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}</div></div></div>
 <div class="grid">
 <div><div class="k">Received from</div><b>${r.studentName}</b><div style="font-size:12px;color:#6b7280">Roll No. ${r.studentId}</div></div>
-<div><div class="k">Paid to</div><b>${r.messName}</b><div style="font-size:12px;color:#6b7280">via StudentHub</div></div>
+<div><div class="k">Paid to</div><b>${r.messName}</b><div style="font-size:12px;color:#6b7280">via Messtoo</div></div>
 <div><div class="k">Billing period</div>${r.period}</div>
 <div><div class="k">Payment method</div>${r.method}</div>
 <div><div class="k">Transaction ID</div>${r.txnId}</div>
@@ -108,7 +108,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th{text-align:left;back
 <tr><td>Mess subscription — ${r.period}</td><td style="text-align:right">${fmtINR(r.amount)}</td></tr>
 <tr><td style="border:none"></td><td style="border:none;text-align:right;padding-top:6px"><b>Total</b></td></tr></table>
 <div class="total"><span>Total paid</span><b>${fmtINR(r.amount)}</b></div>
-<div class="foot">This is a computer-generated receipt from StudentHub and does not require a signature.<br>For queries, contact the mess owner through the StudentHub app.</div></div></body></html>`;
+<div class="foot">This is a computer-generated receipt from Messtoo and does not require a signature.<br>For queries, contact the mess owner through the Messtoo app.</div></div></body></html>`;
 }
 
 function downloadReceipt(r: Receipt) {
