@@ -83,7 +83,7 @@ function Messtoo() {
     <aside className={cn("fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-sidebar px-4 py-6 text-sidebar-foreground transition-transform lg:translate-x-0", mobileOpen ? "translate-x-0" : "-translate-x-full")}>
       <div className="mb-8 grid grid-cols-[minmax(0,1fr)_auto] items-center px-2">
         <button onClick={() => navigate("dashboard")} className="flex min-w-0 items-center gap-3 text-left" aria-label="Messtoo dashboard">
-          <img src={messtooLogo.url} alt="Messtoo" width={139} height={44} className="h-11 w-auto" loading="lazy" />
+          <img src={messtooLogo.url} alt="Messtoo" width={139} height={44} className="h-11 w-auto rounded-md" loading="lazy" />
         </button>
         <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={20} /></Button>
       </div>
